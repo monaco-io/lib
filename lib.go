@@ -6,8 +6,8 @@ import (
 
 // network
 var (
-	// ExternalIP get public ipv4
-	ExternalIP = ip.ExternalV4
+	// ExternalIPv4 get public ipv4
+	ExternalIPv4 = ip.ExternalV4
 
 	// InternalIPv4 get local ipv4
 	InternalIPv4 = ip.InternalV4
