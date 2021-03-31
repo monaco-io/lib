@@ -57,7 +57,8 @@ func AtoI(ipStr string) (ipInt int) {
 	if ip == nil {
 		return
 	}
-	return int(ip[3]) | int(ip[2])<<8 | int(ip[1])<<16 | int(ip[0])<<24
+	ipInt = int(ip[3]) | int(ip[2])<<8 | int(ip[1])<<16 | int(ip[0])<<24
+	return
 }
 
 // ItoA conver int to ip addr.
