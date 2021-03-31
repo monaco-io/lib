@@ -1,6 +1,7 @@
 package ip
 
 import (
+	"fmt"
 	"net"
 	"strings"
 )
@@ -26,16 +27,12 @@ func ExternalV4() (ips []string) {
 						continue
 					}
 					if ip4 := ipnet.IP.To4(); ip4 != nil {
-						switch true {
-						case ip4[0] == 10:
+						if (ip4[0] == 10) ||
+							(ip4[0] == 172 && ip4[1] >= 16 && ip4[1] <= 31) ||
+							(ip4[0] == 192 && ip4[1] == 168) {
 							continue
-						case ip4[0] == 172 && ip4[1] >= 16 && ip4[1] <= 31:
-							continue
-						case ip4[0] == 192 && ip4[1] == 168:
-							continue
-						default:
-							ips = append(ips, ipnet.IP.String())
 						}
+						ips = append(ips, ipnet.IP.String())
 					}
 				}
 			}
@@ -46,23 +43,16 @@ func ExternalV4() (ips []string) {
 
 // InternalV4 ...
 func InternalV4() (ipv4 string) {
-	inters, err := net.Interfaces()
+	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return
 	}
-	for _, inter := range inters {
-		if !strings.HasPrefix(inter.Name, "lo") {
-			addrs, err := inter.Addrs()
-			if err != nil {
-				continue
-			}
-			for _, addr := range addrs {
-				if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-					if ipnet.IP.To4() != nil {
-						ipv4 = ipnet.IP.String()
-						return
-					}
-				}
+	for _, addr := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ipv4 = ipnet.IP.String()
+				return
 			}
 		}
 	}
@@ -70,28 +60,18 @@ func InternalV4() (ipv4 string) {
 }
 
 // AtoI conver ip addr to int.
-func AtoI(s string) (ipInt int) {
-	ip := net.ParseIP(s)
+func AtoI(ipStr string) (ipInt int) {
+	ip := net.ParseIP(ipStr).To4()
 	if ip == nil {
 		return
 	}
-	ip = ip.To4()
-	if ip == nil {
-		return
-	}
-	ipInt += int(ip[0]) << 24
-	ipInt += int(ip[1]) << 16
-	ipInt += int(ip[2]) << 8
-	ipInt += int(ip[3])
-	return
+	return int(ip[3]) | int(ip[2])<<8 | int(ip[1])<<16 | int(ip[0])<<24
 }
 
 // ItoA conver int to ip addr.
 func ItoA(ipInt int) string {
-	ip := make(net.IP, net.IPv4len)
-	ip[0] = byte((ipInt >> 24) & 0xFF)
-	ip[1] = byte((ipInt >> 16) & 0xFF)
-	ip[2] = byte((ipInt >> 8) & 0xFF)
-	ip[3] = byte(ipInt & 0xFF)
-	return ip.String()
+	return fmt.Sprintf("%d.%d.%d.%d",
+		uint8(ipInt>>24), uint8(ipInt>>16),
+		uint8(ipInt>>8), uint8(ipInt),
+	)
 }

@@ -43,7 +43,7 @@ func TestExternalV4(t *testing.T) {
 	}
 }
 
-func TestInetAtoN(t *testing.T) {
+func TestAtoI(t *testing.T) {
 	type args struct {
 		s string
 	}
@@ -62,13 +62,13 @@ func TestInetAtoN(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if gotSum := AtoI(tt.args.s); gotSum != tt.wantSum {
-				t.Errorf("InetAtoN() = %v, want %v", gotSum, tt.wantSum)
+				t.Errorf("AtoI() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
 	}
 }
 
-func TestInetNtoA(t *testing.T) {
+func TestItoA(t *testing.T) {
 	type args struct {
 		sum int
 	}
@@ -87,7 +87,7 @@ func TestInetNtoA(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := ItoA(tt.args.sum); got != tt.want {
-				t.Errorf("InetNtoA() = %v, want %v", got, tt.want)
+				t.Errorf("ItoA() = %v, want %v", got, tt.want)
 			}
 		})
 	}
