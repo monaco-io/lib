@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"github.com/monaco-io/lib/assert"
 	"github.com/monaco-io/lib/ip"
 )
 
@@ -17,4 +18,16 @@ var (
 
 	// IPItoA ip int to string
 	IPItoA = ip.ItoA
+)
+
+// assert
+var (
+	// OK assert and fatal
+	OK = assert.OK
+
+	// Equal a == b
+	Equal = assert.Equal
+
+	// DeepEqual a deepequal b
+	DeepEqual = assert.DeepEqual
 )
