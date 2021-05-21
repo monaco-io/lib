@@ -2,4 +2,4 @@
 
 go library
 
-## [log](./log/README)
+## [log](log/README.md)
