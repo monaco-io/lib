@@ -8,6 +8,7 @@ import (
 
 // network
 var (
+
 	// ExternalIPv4 get public ipv4
 	ExternalIPv4 = ip.ExternalV4
 
@@ -23,6 +24,7 @@ var (
 
 // assert
 var (
+
 	// OK assert and fatal
 	OK = assert.OK
 
@@ -35,6 +37,10 @@ var (
 
 // sys
 var (
+
 	// ExitGrace exec callback functions before exit (SIGINT/SIGQUIT/SIGTERM)
 	ExitGrace = sys.ExitGrace
+
+	// Recover recover panic and log
+	Recover = sys.Recover
 )
