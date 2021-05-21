@@ -3,6 +3,7 @@ package lib
 import (
 	"github.com/monaco-io/lib/assert"
 	"github.com/monaco-io/lib/ip"
+	"github.com/monaco-io/lib/sys"
 )
 
 // network
@@ -30,4 +31,10 @@ var (
 
 	// DeepEqual a deepequal b
 	DeepEqual = assert.DeepEqual
+)
+
+// sys
+var (
+	// ExitGrace exec callback functions before exit (SIGINT/SIGQUIT/SIGTERM)
+	ExitGrace = sys.ExitGrace
 )
