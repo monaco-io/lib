@@ -1,10 +1,11 @@
 package sys
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/monaco-io/lib/log"
 )
 
 // ExitGrace exec callback functions before exit (SIGINT/SIGQUIT/SIGTERM)
@@ -31,7 +32,7 @@ func ExitGrace(callback ...func()) {
 
 	s := <-ch
 
-	log.Printf("GET A SIGNAL - [ %s ]", s.String())
+	log.I("ExitGrace", "singal", s.String())
 
 	switch s {
 

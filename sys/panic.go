@@ -2,13 +2,14 @@ package sys
 
 import (
 	"fmt"
-	"log"
+
+	"github.com/monaco-io/lib/log"
 )
 
 func Recover() (msg string) {
 	if e := recover(); e != nil {
 		msg = fmt.Sprintf("PANIC RECOVER: [ %+v ]", e)
-		log.Println(msg)
+		log.E(msg)
 	}
 	return
 }
