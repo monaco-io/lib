@@ -124,7 +124,9 @@ func Test_contextLogger_I(t *testing.T) {
 		args   args
 	}{
 		{
-			fields: fields{},
+			fields: fields{
+				ctx: context.TODO(),
+			},
 			args: args{
 				msg:       "test",
 				keyValues: []interface{}{"key1", "val1", "key2", "val2"},
@@ -133,9 +135,9 @@ func Test_contextLogger_I(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := context.TODO()
-			WithContext(&ctx).I(tt.args.msg, tt.args.keyValues...)
-			WithContext(&ctx).I(tt.args.msg, tt.args.keyValues...)
+			ctx := *WithContext(tt.fields.ctx).Context
+			WithContext(ctx).I(tt.args.msg, tt.args.keyValues...)
+			WithContext(ctx).I(tt.args.msg, tt.args.keyValues...)
 		})
 	}
 }

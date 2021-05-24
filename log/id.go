@@ -9,14 +9,14 @@ import (
 type (
 	contextKey    interface{}
 	contextLogger struct {
-		context.Context
+		Context *context.Context
 	}
 )
 
-func WithContext(ctx *context.Context) *contextLogger {
-	xRequestID := (*ctx).Value(contextKeyRequestID)
+func WithContext(ctx context.Context) *contextLogger {
+	xRequestID := ctx.Value(contextKeyRequestID)
 	if xRequestID == nil {
-		*ctx = context.WithValue(*ctx, contextKeyRequestID, uuid.New().String())
+		ctx = context.WithValue(ctx, contextKeyRequestID, uuid.New().String())
 	}
-	return &contextLogger{*ctx}
+	return &contextLogger{&ctx}
 }

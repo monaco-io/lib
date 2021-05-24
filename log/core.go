@@ -1,26 +1,26 @@
 package log
 
-func _handler(c *contextLogger, level int, msg string, keyValues ...interface{}) {
+func _handler(c *contextLogger, level Level, msg string, keyValues ...interface{}) {
 	sugar := log.Sugar()
 	if c != nil {
-		sugar = sugar.With(contextKeyRequestID.(string), c.Context.Value(contextKeyRequestID).(string))
+		sugar = sugar.With(contextKeyRequestID.(string), (*c.Context).Value(contextKeyRequestID).(string))
 	}
 	defer func() { _ = log.Sync() }()
 
 	switch level {
-	case debug:
+	case _debug:
 		sugar.Debugw(msg, keyValues...)
-	case info:
+	case _info:
 		sugar.Infow(msg, keyValues...)
-	case warn:
+	case _warn:
 		sugar.Warnw(msg, keyValues...)
-	case err:
+	case _err:
 		sugar.Errorw(msg, keyValues...)
-	case panic:
+	case _panic:
 		sugar.Panicw(msg, keyValues...)
-	case fatal:
+	case _fatal:
 		sugar.Fatalw(msg, keyValues...)
-	case dev:
+	case _dev:
 		sugar.Infow(msg, keyValues...)
 	}
 }

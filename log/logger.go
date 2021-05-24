@@ -5,15 +5,32 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type Level int
+
 const (
-	debug = iota
-	info
-	warn
-	err
-	panic
-	fatal
-	dev
+	_debug Level = iota
+	_info
+	_warn
+	_err
+	_panic
+	_fatal
+	_dev
 )
+
+var levelNames = [...]string{
+	_debug: "DEBUG",
+	_info:  "INFO",
+	_warn:  "WARN",
+	_err:   "ERROR",
+	_panic: "PANIC",
+	_fatal: "FATAL",
+	_dev:   "DEV",
+}
+
+// String implementation.
+func (l Level) String() string {
+	return levelNames[l]
+}
 
 const arrow = "->"
 
