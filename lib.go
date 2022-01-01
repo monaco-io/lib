@@ -3,6 +3,7 @@ package lib
 import (
 	"github.com/monaco-io/lib/assert"
 	"github.com/monaco-io/lib/ip"
+	"github.com/monaco-io/lib/retry"
 	"github.com/monaco-io/lib/sys"
 )
 
@@ -43,4 +44,9 @@ var (
 
 	// Recover recover panic and log
 	Recover = sys.Recover
+)
+
+var (
+	// Retry retry when there is error
+	Retry = retry.Do
 )
