@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 )
 
 type Options struct {
-	RetryTimes int
 	Context    context.Context
+	RetryTimes int
+	Delay      time.Duration
 }
 
 func Do(f func(context.Context) error, opts Options) (err error) {
@@ -36,6 +38,9 @@ func Do(f func(context.Context) error, opts Options) (err error) {
 	}
 
 	for times := 0; times < opts.RetryTimes; times++ {
+		if times != 0 {
+			time.Sleep(opts.Delay)
+		}
 		err = f(opts.Context)
 		if err == nil {
 			break
