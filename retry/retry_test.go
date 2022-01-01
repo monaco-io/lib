@@ -25,7 +25,7 @@ func TestDo(t *testing.T) {
 					Context:    nil,
 				},
 			},
-			wantErr: false,
+			wantErr: true,
 		},
 		{
 			name: "",
@@ -33,6 +33,17 @@ func TestDo(t *testing.T) {
 				f: func(context.Context) error { return errors.New("mock error") },
 				opts: Options{
 					RetryTimes: 10,
+					Context:    nil,
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "",
+			args: args{
+				f: func(context.Context) error { return nil },
+				opts: Options{
+					RetryTimes: 999,
 					Context:    nil,
 				},
 			},
