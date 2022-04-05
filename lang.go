@@ -1,4 +1,4 @@
-package xec
+package lib
 
 type Language string
 
