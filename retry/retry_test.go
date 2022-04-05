@@ -1,14 +1,13 @@
 package retry
 
 import (
-	"context"
 	"errors"
 	"testing"
 )
 
 func TestDo(t *testing.T) {
 	type args struct {
-		f    func(context.Context) error
+		f    func() error
 		opts Options
 	}
 	tests := []struct {
@@ -19,10 +18,9 @@ func TestDo(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				f: func(context.Context) error { panic("not implemented") },
+				f: func() error { panic("not implemented") },
 				opts: Options{
 					RetryTimes: 3,
-					Context:    nil,
 				},
 			},
 			wantErr: true,
@@ -30,10 +28,9 @@ func TestDo(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				f: func(context.Context) error { return errors.New("mock error") },
+				f: func() error { return errors.New("mock error") },
 				opts: Options{
 					RetryTimes: 10,
-					Context:    nil,
 				},
 			},
 			wantErr: true,
@@ -41,10 +38,9 @@ func TestDo(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				f: func(context.Context) error { return nil },
+				f: func() error { return nil },
 				opts: Options{
 					RetryTimes: 999,
-					Context:    nil,
 				},
 			},
 			wantErr: false,
