@@ -11,7 +11,7 @@ func OK(ok bool, msg string) {
 	}
 }
 
-func Equal(x, y interface{}) bool {
+func Equal(x, y any) bool {
 	return x == y
 }
 
@@ -66,6 +66,6 @@ func Equal(x, y interface{}) bool {
 // values that have been compared before, it treats the values as
 // equal rather than examining the values to which they point.
 // This ensures that DeepEqual terminates.
-func DeepEqual(x, y interface{}) bool {
+func DeepEqual(x, y any) bool {
 	return reflect.DeepEqual(x, y)
 }
