@@ -14,12 +14,11 @@ func (ll *ListNode[T]) String() string {
 	return fmt.Sprintf("%v->%v", ll.value, ll.next.String())
 }
 
-func (ll *ListNode[T]) Len() int {
-	count := 0
+func (ll *ListNode[T]) Len() (length int) {
 	for node := ll; node != nil; node = node.next {
-		count++
+		length++
 	}
-	return count
+	return
 }
 
 func (ll *ListNode[T]) InsertAt(pos int, value T) *ListNode[T] {
