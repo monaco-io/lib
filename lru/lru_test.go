@@ -32,7 +32,8 @@ func TestAdd(t *testing.T) {
 				return nil
 			default:
 				for i := 0; i <= math.MaxInt8; i++ {
-					t.Log(instance.Get(i))
+					v, ok := instance.Get(i)
+					t.Log(i, v, ok)
 				}
 			}
 		}
