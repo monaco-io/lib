@@ -2,6 +2,6 @@
 
 go library
 
-## [lru](lru/README.md)
+## [lru](lru/)
 
-## [log](log/README.md)
+## [log](log/)
