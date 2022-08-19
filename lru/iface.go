@@ -51,7 +51,7 @@ type ICacheC[K comparable, V any] interface {
 	GetC(context.Context, K) (V, error)
 }
 
-func NewWithCB[K comparable, V any](limit int, ttl time.Duration, cb func(context.Context, K) (V, error)) ICacheC[K, V] {
+func NewC[K comparable, V any](limit int, ttl time.Duration, cb func(context.Context, K) (V, error)) ICacheC[K, V] {
 	c := CacheC[K, V]{
 		ICache: New[K, V](limit, ttl),
 		cb:     cb,

@@ -39,7 +39,7 @@ import (
 	"github.com/monaco-io/lib/lru"
 )
 
-var instance = lru.NewWithCB(100, time.Second, func(context.Context, int) (int, error) {
+var instance = lru.NewC(100, time.Second, func(context.Context, int) (int, error) {
 	return 10086, nil
 })
 
