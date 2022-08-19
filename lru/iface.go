@@ -22,7 +22,7 @@ type ICache[K comparable, V any] interface {
 	Remove(key K)
 
 	Len() int
-	Clear()
+	Flush()
 }
 
 // New creates a new Cache.
