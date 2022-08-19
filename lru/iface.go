@@ -2,6 +2,7 @@ package lru
 
 import (
 	"container/list"
+	"context"
 	"sync"
 	"time"
 
@@ -28,7 +29,7 @@ type ICache[K comparable, V any] interface {
 // New creates a new Cache.
 // If maxEntries is zero, the cache has no limit and it's assumed
 // that eviction is done by the caller.
-func New[K comparable, V any](limit int, ttl time.Duration) *Cache[K, V] {
+func New[K comparable, V any](limit int, ttl time.Duration) ICache[K, V] {
 	c := Cache[K, V]{
 		limit: defaultLength,
 		ttl:   defaultTTL,
@@ -42,5 +43,19 @@ func New[K comparable, V any](limit int, ttl time.Duration) *Cache[K, V] {
 	if ttl != 0 {
 		c.ttl = ttl
 	}
+	return &c
+}
+
+type ICacheC[K comparable, V any] interface {
+	ICache[K, V]
+	GetC(ctx context.Context, key K) (value V, err error)
+}
+
+func NewWithCB[K comparable, V any](limit int, ttl time.Duration, cb func(context.Context, K) (V, error)) ICacheC[K, V] {
+	c := CacheC[K, V]{
+		ICache: New[K, V](limit, ttl),
+		cb:     cb,
+	}
+
 	return &c
 }

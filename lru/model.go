@@ -2,6 +2,7 @@ package lru
 
 import (
 	"container/list"
+	"context"
 	"math"
 	"sync"
 	"time"
@@ -32,4 +33,9 @@ type entry[K comparable, V any] struct {
 	key    K
 	value  V
 	expire time.Time
+}
+
+type CacheC[K comparable, V any] struct {
+	ICache[K, V]
+	cb func(context.Context, K) (V, error)
 }

@@ -2,7 +2,7 @@ package lru
 
 import (
 	"container/list"
-	"time"
+	"context"
 
 	"github.com/monaco-io/lib/syncmap"
 )
@@ -66,6 +66,12 @@ func (c *Cache[K, V]) Flush() {
 	c.hash = syncmap.New[K, *list.Element]()
 }
 
-func now() time.Time {
-	return time.Now()
+// Clear purges all stored items from the cache.
+func (c *CacheC[K, V]) GetC(ctx context.Context, key K) (value V, err error) {
+	value, ok := c.Get(key)
+	if ok {
+		return
+	}
+	value, err = c.cb(ctx, key)
+	return
 }
