@@ -13,14 +13,14 @@ import (
 type ICache[K comparable, V any] interface {
 	// Sets a value to the cache, returns true if an eviction occurred and
 	// updates the "recently used"-ness of the key.
-	Set(key K, value V)
+	Set(K, V)
 
 	// Returns key's value from the cache and
 	// updates the "recently used"-ness of the key. #value, isFound
-	Get(key K) (value V, ok bool)
+	Get(K) (V, bool)
 
 	// Removes a key from the cache.
-	Remove(key K)
+	Remove(K)
 
 	Len() int
 	Flush()
