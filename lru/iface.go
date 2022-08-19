@@ -1,11 +1,11 @@
 package lru
 
 import (
-	"container/list"
 	"context"
 	"sync"
 	"time"
 
+	"github.com/monaco-io/lib/list"
 	"github.com/monaco-io/lib/syncmap"
 )
 
@@ -33,8 +33,8 @@ func New[K comparable, V any](limit int, ttl time.Duration) ICache[K, V] {
 	c := Cache[K, V]{
 		limit: defaultLength,
 		ttl:   defaultTTL,
-		cache: list.New(),
-		hash:  syncmap.New[K, *list.Element](),
+		cache: list.New[*entry[K, V]](),
+		hash:  syncmap.New[K, *list.Element[*entry[K, V]]](),
 		lock:  new(sync.Mutex),
 	}
 	if limit != 0 {

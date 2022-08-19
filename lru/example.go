@@ -4,6 +4,27 @@ package lru
 
 // import (
 // 	"log"
+
+// 	"github.com/monaco-io/lib/lru"
+// )
+
+// var instance = lru.New[int, int](100, time.Second*5)
+
+// func main() {
+// 	i := 1
+// 	//set key value pairs
+// 	instance.Set(i, i)
+
+// 	//get val from mem
+// 	v, ok := instance.Get(i)
+// 	log.Println(i, v, ok)
+
+// }
+
+// package main
+
+// import (
+// 	"log"
 // 	"math"
 // 	"time"
 
@@ -16,7 +37,7 @@ package lru
 // func main() {
 // 	c1 := time.After(time.Second * 3)
 // 	c2 := time.After(time.Second * 10)
-// 	f1 := func() error {
+// 	set := func() error {
 // 		for {
 // 			select {
 // 			case <-c1:
@@ -28,7 +49,7 @@ package lru
 // 			}
 // 		}
 // 	}
-// 	f2 := func() error {
+// 	get := func() error {
 // 		for {
 // 			select {
 // 			case <-c2:
@@ -42,7 +63,8 @@ package lru
 // 		}
 // 	}
 // 	var eg errgroup.Group
-// 	eg.Go(f1)
-// 	eg.Go(f2)
+// 	eg.Go(set)
+// 	eg.Go(get)
+// 	eg.Go(get)
 // 	eg.Wait()
 // }

@@ -1,12 +1,12 @@
 package lru
 
 import (
-	"container/list"
 	"context"
 	"math"
 	"sync"
 	"time"
 
+	"github.com/monaco-io/lib/list"
 	"github.com/monaco-io/lib/syncmap"
 )
 
@@ -24,8 +24,8 @@ type Cache[K comparable, V any] struct {
 	// expire time
 	ttl time.Duration
 
-	cache *list.List
-	hash  *syncmap.Map[K, *list.Element]
+	cache *list.List[*entry[K, V]]
+	hash  *syncmap.Map[K, *list.Element[*entry[K, V]]]
 	lock  sync.Locker
 }
 
