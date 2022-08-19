@@ -9,6 +9,32 @@ package main
 
 import (
 	"log"
+
+	"github.com/monaco-io/lib/lru"
+)
+
+var instance = lru.New[int, int](100, time.Second*5)
+
+func main() {
+	i := 1
+	//set key value pairs
+	instance.Set(i, i)
+
+	//get val from mem
+	v, ok := instance.Get(i)
+	log.Println(i, v, ok)
+
+}
+
+```
+
+## example concurrent
+
+```go
+package main
+
+import (
+	"log"
 	"math"
 	"time"
 

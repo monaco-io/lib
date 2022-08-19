@@ -1,48 +1,32 @@
 package lru
 
 import (
-	"math"
 	"testing"
 	"time"
-
-	"golang.org/x/sync/errgroup"
 )
 
-var instance ICache[int, int] = New[int, int](100, time.Second*10)
+var instance = New[int, int](100, time.Second*1)
 
-func TestSet(t *testing.T) {
-	c1 := time.After(time.Second * 15)
-	c2 := time.After(time.Second * 15)
-	f1 := func() error {
-		for {
-			select {
-			case <-c1:
-				return nil
-			default:
-				for i := 0; i <= math.MaxInt8; i++ {
-					instance.Set(i, i)
-				}
-			}
-		}
+func TestCache(t *testing.T) {
+	instance.Set(1, 1)
+	want, ok := instance.Get(1)
+	if !ok {
+		t.Fatal("want 1")
 	}
-	f2 := func() error {
-		for {
-			select {
-			case <-c2:
-				return nil
-			default:
-				for i := 0; i <= math.MaxInt8; i++ {
-					if i == 100 {
-						instance.Flush()
-					}
-					v, ok := instance.Get(i)
-					t.Log(i, v, ok)
-				}
-			}
-		}
+	if want != 1 {
+		t.Fatal("want 1")
 	}
-	var eg errgroup.Group
-	eg.Go(f1)
-	eg.Go(f2)
-	eg.Wait()
+	time.Sleep(time.Second * 2)
+	_, ok = instance.Get(1)
+	if ok {
+		t.Fatal("not want 1")
+	}
+	for i := 0; i < 110; i++ {
+		instance.Set(i, i)
+	}
+	_, ok = instance.Get(1)
+	if ok {
+		t.Fatal("not want 1")
+	}
+	t.Log(instance.Len())
 }
