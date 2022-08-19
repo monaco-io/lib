@@ -5,10 +5,11 @@ import (
 	"context"
 
 	"github.com/monaco-io/lib/syncmap"
+	"github.com/pkg/errors"
 )
 
-// Add adds a value to the cache.
-func (c *Cache[K, V]) Add(key K, value V) {
+// Set adds a value to the cache.
+func (c *Cache[K, V]) Set(key K, value V) {
 	if c.hash == nil {
 		c.hash = syncmap.New[K, *list.Element]()
 		c.cache = list.New()
@@ -73,5 +74,10 @@ func (c *CacheC[K, V]) GetC(ctx context.Context, key K) (value V, err error) {
 		return
 	}
 	value, err = c.cb(ctx, key)
+	if err != nil {
+		err = errors.Wrap(err, "callback")
+		return
+	}
+	c.Set(key, value)
 	return
 }
