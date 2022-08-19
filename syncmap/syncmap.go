@@ -1,6 +1,8 @@
 package syncmap
 
-import "sync"
+import (
+	"sync"
+)
 
 type Map[K comparable, V any] struct {
 	syncmap *sync.Map

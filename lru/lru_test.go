@@ -8,7 +8,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var instance LRUCache[int, int] = New[int, int](100, time.Second*10)
+var instance ICache[int, int] = New[int, int](100, time.Second*10)
 
 func TestAdd(t *testing.T) {
 	c1 := time.After(time.Second * 15)
@@ -32,8 +32,11 @@ func TestAdd(t *testing.T) {
 				return nil
 			default:
 				for i := 0; i <= math.MaxInt8; i++ {
+					if i == 100 {
+						instance.Clear()
+					}
 					v, ok := instance.Get(i)
-					t.Log(i, v, ok)
+					t.Log(i, v, ok, instance.Len())
 				}
 			}
 		}

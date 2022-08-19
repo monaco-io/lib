@@ -2,23 +2,50 @@ package main
 
 import (
 	"log"
+	"math"
 	"time"
 
-	"github.com/monaco-io/lib"
+	"github.com/monaco-io/lib/lru"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
-	exit1 := func() {
-		time.Sleep(time.Second * 1)
-		log.Println("exit1 ...")
+	var instance lru.ICache[int, int] = lru.New[int, int](100, time.Second*10)
+
+	c1 := time.After(time.Second * 15)
+	c2 := time.After(time.Second * 15)
+	f1 := func() error {
+		for {
+			select {
+			case <-c1:
+				return nil
+			default:
+				for i := 0; i <= math.MaxInt8; i++ {
+					instance.Add(i, i)
+					// time.Sleep(time.Second / 100)
+				}
+			}
+		}
 	}
-	exit2 := func() {
-		time.Sleep(time.Second * 2)
-		log.Println("exit2 ...")
+	f2 := func() error {
+		for {
+			select {
+			case <-c2:
+				return nil
+			default:
+				for i := 0; i <= math.MaxInt8; i++ {
+					if i == 100 {
+						instance.Clear()
+					}
+					v, ok := instance.Get(i)
+					log.Println(i, v, ok, instance.Len())
+					// instance.Get(i)
+				}
+			}
+		}
 	}
-	exit3 := func() {
-		time.Sleep(time.Second * 3)
-		log.Println("exit3 ...")
-	}
-	lib.ExitGrace(exit1, exit2, exit3)
+	var eg errgroup.Group
+	eg.Go(f1)
+	eg.Go(f2)
+	eg.Wait()
 }
