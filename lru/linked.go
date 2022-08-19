@@ -1,6 +1,9 @@
 package lru
 
-import "container/list"
+import (
+	"container/list"
+	"time"
+)
 
 func (c *Cache[K, V]) moveToFront(ele *list.Element) {
 	c.lock.Lock()
@@ -32,4 +35,8 @@ func (c *Cache[K, V]) removeOldest() {
 	if ele != nil {
 		c.remove(ele)
 	}
+}
+
+func now() time.Time {
+	return time.Now()
 }
