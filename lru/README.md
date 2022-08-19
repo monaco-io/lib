@@ -28,7 +28,7 @@ func main() {
 				return nil
 			default:
 				for i := 0; i <= math.MaxInt8; i++ {
-					instance.Add(i, i)
+					instance.Set(i, i)
 				}
 			}
 		}
@@ -83,7 +83,7 @@ func main() {
 				return nil
 			default:
 				for i := 0; i <= math.MaxInt8; i++ {
-					instance.Add(i, i)
+					instance.Set(i, i)
 				}
 			}
 		}

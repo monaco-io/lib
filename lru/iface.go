@@ -11,9 +11,9 @@ import (
 
 // ICache is the interface for thread safe LRU cache.
 type ICache[K comparable, V any] interface {
-	// Adds a value to the cache, returns true if an eviction occurred and
+	// Sets a value to the cache, returns true if an eviction occurred and
 	// updates the "recently used"-ness of the key.
-	Add(key K, value V)
+	Set(key K, value V)
 
 	// Returns key's value from the cache and
 	// updates the "recently used"-ness of the key. #value, isFound
@@ -48,7 +48,7 @@ func New[K comparable, V any](limit int, ttl time.Duration) ICache[K, V] {
 
 type ICacheC[K comparable, V any] interface {
 	ICache[K, V]
-	GetC(ctx context.Context, key K) (value V, err error)
+	GetC(context.Context, K) (V, error)
 }
 
 func NewWithCB[K comparable, V any](limit int, ttl time.Duration, cb func(context.Context, K) (V, error)) ICacheC[K, V] {
