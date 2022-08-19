@@ -36,7 +36,7 @@ func TestAdd(t *testing.T) {
 						instance.Clear()
 					}
 					v, ok := instance.Get(i)
-					t.Log(i, v, ok, instance.Len())
+					t.Log(i, v, ok)
 				}
 			}
 		}
