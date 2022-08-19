@@ -33,7 +33,7 @@ func TestAdd(t *testing.T) {
 			default:
 				for i := 0; i <= math.MaxInt8; i++ {
 					if i == 100 {
-						instance.Clear()
+						instance.Flush()
 					}
 					v, ok := instance.Get(i)
 					t.Log(i, v, ok)

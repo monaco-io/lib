@@ -61,7 +61,7 @@ func (c *Cache[K, V]) Len() int {
 }
 
 // Clear purges all stored items from the cache.
-func (c *Cache[K, V]) Clear() {
+func (c *Cache[K, V]) Flush() {
 	c.cache = list.New()
 	c.hash = syncmap.New[K, *list.Element]()
 }
