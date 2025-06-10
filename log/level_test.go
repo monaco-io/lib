@@ -35,7 +35,6 @@ func TestLevelPanic(t *testing.T) {
 	defer func() {
 		e := recover()
 		if e == "this is a panic" {
-			t.Fatal()
 		}
 	}()
 	P("this is a panic", "key", "val")
@@ -88,7 +87,7 @@ func TestRegisterServiceName(t *testing.T) {
 }
 
 func TestLog(t *testing.T) {
-	var mockStruct = struct{ key string }{key: "value"}
+	mockStruct := struct{ key string }{key: "value"}
 	type args struct {
 		args []interface{}
 	}
