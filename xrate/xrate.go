@@ -4,7 +4,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func NewLimit(limit int) *rate.Limiter {
+func NewLimiter(limit int) *rate.Limiter {
 	if limit <= 0 {
 		return nil
 	}
