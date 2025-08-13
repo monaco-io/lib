@@ -6,8 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/monaco-io/lib/list"
-	"github.com/monaco-io/lib/syncmap"
+	"github.com/monaco-io/lib/typing"
 )
 
 const (
@@ -24,9 +23,9 @@ type Cache[K comparable, V any] struct {
 	// expire time
 	ttl time.Duration
 
-	cache *list.List[*entry[K, V]]
-	hash  *syncmap.Map[K, *list.Element[*entry[K, V]]]
-	lock  sync.Locker
+	data *typing.LinkedList[*entry[K, V]]
+	hash *typing.SyncMap[K, *typing.Element[*entry[K, V]]]
+	lock sync.Locker
 }
 
 type entry[K comparable, V any] struct {

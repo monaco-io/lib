@@ -3,25 +3,25 @@ package lru
 import (
 	"time"
 
-	"github.com/monaco-io/lib/list"
+	"github.com/monaco-io/lib/typing"
 )
 
-func (c *Cache[K, V]) moveToFront(ele *list.Element[*entry[K, V]]) {
+func (c *Cache[K, V]) moveToFront(ele *typing.Element[*entry[K, V]]) {
 	c.lock.Lock()
-	c.cache.MoveToFront(ele)
+	c.data.MoveToFront(ele)
 	c.lock.Unlock()
 }
 
-func (c *Cache[K, V]) pushFront(v *entry[K, V]) (ele *list.Element[*entry[K, V]]) {
+func (c *Cache[K, V]) pushFront(v *entry[K, V]) (ele *typing.Element[*entry[K, V]]) {
 	c.lock.Lock()
-	ele = c.cache.PushFront(v)
+	ele = c.data.PushFront(v)
 	c.lock.Unlock()
 	return
 }
 
-func (c *Cache[K, V]) remove(e *list.Element[*entry[K, V]]) {
+func (c *Cache[K, V]) remove(e *typing.Element[*entry[K, V]]) {
 	c.lock.Lock()
-	c.cache.Remove(e)
+	c.data.Remove(e)
 	c.lock.Unlock()
 	c.hash.Delete(e.Value.key)
 }
@@ -31,7 +31,7 @@ func (c *Cache[K, V]) removeOldest() {
 	if c.hash == nil {
 		return
 	}
-	ele := c.cache.Back()
+	ele := c.data.Back()
 	if ele != nil {
 		c.remove(ele)
 	}

@@ -1,4 +1,4 @@
-package objectpool
+package typing
 
 import (
 	"sync"

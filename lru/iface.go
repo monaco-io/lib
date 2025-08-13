@@ -5,8 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/monaco-io/lib/list"
-	"github.com/monaco-io/lib/syncmap"
+	"github.com/monaco-io/lib/typing"
 )
 
 // ICache is the interface for thread safe LRU cache.
@@ -33,8 +32,8 @@ func New[K comparable, V any](limit int, ttl time.Duration) ICache[K, V] {
 	c := Cache[K, V]{
 		limit: defaultLength,
 		ttl:   defaultTTL,
-		cache: list.New[*entry[K, V]](),
-		hash:  syncmap.New[K, *list.Element[*entry[K, V]]](),
+		data:  typing.NewLinkedList[*entry[K, V]](),
+		hash:  typing.NewSyncMap[K, *typing.Element[*entry[K, V]]](),
 		lock:  new(sync.Mutex),
 	}
 	if limit != 0 {
