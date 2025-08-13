@@ -1,4 +1,4 @@
-package objectpool
+package typing
 
 import (
 	"sync"
@@ -11,7 +11,7 @@ type testObject struct {
 
 func TestObjectPool(t *testing.T) {
 	// Create a new object pool for testObject
-	pool := New[testObject]()
+	pool := NewObjectPool[testObject]()
 
 	// Test Get returns a non-nil object
 	obj := pool.Get()
@@ -36,7 +36,7 @@ func TestObjectPool(t *testing.T) {
 }
 
 func TestObjectPoolConcurrent(t *testing.T) {
-	pool := New[testObject]()
+	pool := NewObjectPool[testObject]()
 	const goroutines = 100
 	const iterations = 1000
 
@@ -69,7 +69,7 @@ func TestObjectPoolConcurrent(t *testing.T) {
 }
 
 func BenchmarkObjectPool(b *testing.B) {
-	pool := New[testObject]()
+	pool := NewObjectPool[testObject]()
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
@@ -83,7 +83,7 @@ func BenchmarkObjectPool(b *testing.B) {
 // Benchmark comparing with and without using object pool
 func BenchmarkWithWithoutPool(b *testing.B) {
 	b.Run("WithPool", func(b *testing.B) {
-		pool := New[testObject]()
+		pool := NewObjectPool[testObject]()
 		b.ResetTimer()
 
 		for i := 0; i < b.N; i++ {

@@ -8,7 +8,7 @@ type ObjectPool[T any] struct {
 	pool *sync.Pool
 }
 
-func New[T any]() *ObjectPool[T] {
+func NewObjectPool[T any]() *ObjectPool[T] {
 	return &ObjectPool[T]{
 		pool: &sync.Pool{
 			New: func() any {
