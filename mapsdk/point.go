@@ -1,10 +1,13 @@
 package mapsdk
 
-import "github.com/monaco-io/lib/mapsdk/geohash"
+import (
+	"github.com/monaco-io/lib/mapsdk/coordinate"
+	"github.com/monaco-io/lib/mapsdk/geohash"
+)
 
 type TPoint struct {
-	Point          `json:"point"`
-	CoordinateType `json:"type"`
+	coordinate.TYPE `json:"type"`
+	Point           `json:"point"`
 }
 
 type Point struct {
@@ -26,9 +29,10 @@ func (p *TPoint) GetGeoHash(precision uint) string {
 	return p.Point.GetGeoHash(precision)
 }
 
-func (p TPoint) Transform(t CoordinateType) TPoint {
+func (p TPoint) Transform(t coordinate.TYPE) TPoint {
+	lng, lat := coordinate.Transform(p.Point.Lng, p.Point.Lat, p.TYPE, t)
 	return TPoint{
-		CoordinateType: t,
-		Point:          coordinateConverter.Transform(p.Point, p.CoordinateType, t),
+		TYPE:  t,
+		Point: Point{Lng: lng, Lat: lat},
 	}
 }

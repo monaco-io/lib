@@ -2,43 +2,13 @@ package mapsdk
 
 import (
 	"testing"
+
+	"github.com/monaco-io/lib/mapsdk/coordinate"
 )
-
-func TestNew(t *testing.T) {
-	type args struct {
-		source Source
-		ak     string
-	}
-	tests := []struct {
-		name string
-		args args
-		want ISDK
-	}{
-		{
-			name: "Baidu",
-			args: args{
-				source: Baidu,
-				ak:     "",
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			sdk := New(tt.args.source, tt.args.ak)
-
-			res, err := sdk.GetPlaceDetail("435d7aea036e54355abbbcc8")
-			if err != nil {
-				t.Errorf("GetPlaceDetail() error = %v", err)
-				return
-			}
-			t.Logf("GetPlaceDetail() = %s", res.ToJSON())
-		})
-	}
-}
 
 func TestPoint_GetGeoHash(t *testing.T) {
 	type fields struct {
-		Type CoordinateType
+		Type coordinate.TYPE
 		Lat  float64
 		Lng  float64
 	}

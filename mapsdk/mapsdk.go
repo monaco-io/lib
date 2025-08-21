@@ -33,17 +33,21 @@ var (
 	ErrorConcurrencyLimit   = xec.New(-1401, "当前并发量已经超过约定并发配额，限制访问")
 )
 
-type Source int
+type Source string
 
 const (
-	Baidu Source = iota + 1
-	Gaode
-	Tencent
+	Baidu   Source = "baidu"
+	Gaode   Source = "gaode"
+	Tencent Source = "tencent"
 )
 
 type ISDK interface {
-	// SearchPlace(query string, region string) (*SearchResponse, error)
-	GetPlaceDetail(id string) (*Response[*PlaceDetailData], error)
+	// 搜索区域poi数据
+	SearchPlace(query string, region string) (*Response[SearchPlaceData], error)
+	// 根据id获取详细信息
+	GetPlaceDetail(ids []string) (*Response[[]PlaceDetailData], error)
+	// 根据坐标+类型获取逆地理信息
+	GetReverseGeocoding(point TPoint, poiTypes []string) (*Response[ReverseGeocodingData], error)
 }
 
 func New(source Source, ak string) ISDK {
@@ -59,20 +63,25 @@ func New(source Source, ak string) ISDK {
 }
 
 type Location struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	Address  string   `json:"address"`
-	Province string   `json:"province"`
-	City     string   `json:"city"`
-	Area     string   `json:"area"`
-	Tag      string   `json:"tag"`
-	Points   []TPoint `json:"points"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`          // 百度大厦
+	Address      string   `json:"address"`       // 北京市海淀区上地十街10号
+	Country      string   `json:"country"`       // 中国
+	Province     string   `json:"province"`      // 北京市
+	City         string   `json:"city"`          // 北京市
+	Area         string   `json:"area"`          // 海淀区
+	Street       string   `json:"street"`        // 上地十街
+	Town         string   `json:"town"`          // 上地街道
+	StreetNumber string   `json:"street_number"` // 10号
+	Tag          []string `json:"tag"`           // 房地产,写字楼
+	Points       []TPoint `json:"points"`
 }
 
 type Response[T any] struct {
-	Source Source    `json:"source"`
-	Status xec.Error `json:"status"`
-	Data   T         `json:"data"`
+	Source `json:"source"`
+	Status xec.Error       `json:"status"`
+	Data   T               `json:"data"`
+	Meta   json.RawMessage `json:"meta"`
 }
 
 func (r *Response[T]) IsOK() bool {
@@ -84,9 +93,18 @@ func (r *Response[T]) ToJSON() string {
 	return string(data)
 }
 
-type SearchPlaceData struct{}
+type SearchPlaceData struct {
+	Locations []Location `json:"locations"`
+	Extra     string     `json:"extra"`
+}
 
 type PlaceDetailData struct {
-	Location *Location `json:"location"`
-	Extra    string    `json:"extra"`
+	Location Location `json:"location"`
+	Extra    string   `json:"extra"`
+}
+
+type ReverseGeocodingData struct {
+	Location Location   `json:"location"`
+	Child    []Location `json:"child"`
+	Extra    string     `json:"extra"`
 }
