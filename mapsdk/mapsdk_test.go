@@ -17,7 +17,7 @@ func TestNew(t *testing.T) {
 		{
 			name: "Baidu",
 			args: args{
-				source: SourceBaidu,
+				source: Baidu,
 				ak:     "",
 			},
 		},

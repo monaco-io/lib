@@ -36,9 +36,9 @@ var (
 type Source int
 
 const (
-	SourceBaidu Source = iota + 1
-	SourceGaode
-	SourceTencent
+	Baidu Source = iota + 1
+	Gaode
+	Tencent
 )
 
 type ISDK interface {
@@ -48,11 +48,11 @@ type ISDK interface {
 
 func New(source Source, ak string) ISDK {
 	switch source {
-	case SourceBaidu:
+	case Baidu:
 		return newBaidu(ak)
-	case SourceGaode:
+	case Gaode:
 		// return newGaode(ak)
-	case SourceTencent:
+	case Tencent:
 		// return newTencent(ak)
 	}
 	return nil

@@ -80,7 +80,7 @@ type baiduDetailResponse struct {
 
 func (d *BaiduSearchResponse) dto() *Response[*SearchPlaceData] {
 	return &Response[*SearchPlaceData]{
-		Source: SourceBaidu,
+		Source: Baidu,
 		Status: xec.New(d.Status, d.Message),
 		Data:   &SearchPlaceData{},
 	}
@@ -90,7 +90,7 @@ func (d *baiduDetailResponse) dto() *Response[*PlaceDetailData] {
 	ext, _ := json.Marshal(d.Result.DetailInfo)
 	bd09 := TPoint{CoordinateType: BD09, Point: Point{Lat: d.Result.Location.Lat, Lng: d.Result.Location.Lng}}
 	return &Response[*PlaceDetailData]{
-		Source: SourceBaidu,
+		Source: Baidu,
 		Status: xec.New(d.Status, d.Message),
 		Data: &PlaceDetailData{
 			Location: &Location{
