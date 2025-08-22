@@ -26,7 +26,12 @@ func newBaidu(ak string) *baidu {
 	}
 }
 
-func (b *baidu) NativeDo(uri string, params ...KV) (json.RawMessage, error) {
+type NativeDoResponse struct {
+	URI  string
+	Body json.RawMessage
+}
+
+func (b *baidu) NativeDo(uri string, params ...KV) (*NativeDoResponse, error) {
 	values := url.Values{}
 	for _, opt := range params {
 		k, v := opt()
@@ -49,7 +54,10 @@ func (b *baidu) NativeDo(uri string, params ...KV) (json.RawMessage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read response body error: %v", err)
 	}
-	return body, nil
+	return &NativeDoResponse{
+		URI:  url.String(),
+		Body: body,
+	}, nil
 }
 
 // https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-placeapiV3/interfaceDocumentV3
@@ -59,7 +67,6 @@ func (b *baidu) SearchRegion(params SearchRegionParams, opts ...KV) (*Response[S
 	if params.Lat != 0 && params.Lng != 0 {
 		opts = append(opts, NewKV("center", fmt.Sprintf("%f,%f", params.Lat, params.Lng)))
 	}
-
 	body, err := b.NativeDo("/place/v3/region", opts...)
 	if err != nil {
 		return nil, err

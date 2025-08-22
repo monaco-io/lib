@@ -56,7 +56,7 @@ type ISDK interface {
 	// baidu https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-geocoding-abroad-base
 	GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV) (*Response[ReverseGeocodingData], error)
 
-	NativeDo(uri string, kv ...KV) (json.RawMessage, error)
+	NativeDo(uri string, kv ...KV) (*NativeDoResponse, error)
 }
 
 func New(source Source, ak string) ISDK {
@@ -80,7 +80,7 @@ func NewKV(k, v string) func() (string, string) {
 }
 
 type IResponseDTO[T any] interface {
-	ResponseDTO() *Response[T]
+	ResponseDTO(uri string) *Response[T]
 }
 type Location struct {
 	ID           string         `json:"id"`
@@ -109,10 +109,11 @@ type LocationDetail struct {
 }
 
 type Response[T any] struct {
-	Source `json:"source"`
-	Status xec.Error       `json:"status"`
-	Data   T               `json:"data"`
-	Meta   json.RawMessage `json:"meta"`
+	Source   `json:"source"`
+	Status   xec.Error       `json:"status"`
+	Data     T               `json:"data"`
+	MetaURI  string          `json:"meta_uri"`
+	MetaData json.RawMessage `json:"meta_data"`
 }
 
 func (r *Response[T]) IsOK() bool {
@@ -156,10 +157,13 @@ type (
 	}
 )
 
-func unmarshal[IDTO IResponseDTO[T], T any](body json.RawMessage) (*Response[T], error) {
-	target, err := xjson.UnmarshalT[IDTO](body)
+func unmarshal[IDTO IResponseDTO[T], T any](body *NativeDoResponse) (*Response[T], error) {
+	if body == nil {
+		return nil, fmt.Errorf("response body is nil")
+	}
+	target, err := xjson.UnmarshalT[IDTO](body.Body)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal error: %v", err)
 	}
-	return target.ResponseDTO(), nil
+	return target.ResponseDTO(body.URI), nil
 }

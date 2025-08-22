@@ -138,16 +138,17 @@ type (
 	}
 )
 
-func (d *BaiduResponse) ResponseDTO() *Response[*BaiduResponse] {
+func (d *BaiduResponse) ResponseDTO(uri string) *Response[*BaiduResponse] {
 	return &Response[*BaiduResponse]{
-		Source: Baidu,
-		Status: xec.New(d.Status, d.Message),
-		Meta:   d.ToJSON(),
-		Data:   d,
+		Source:   Baidu,
+		Status:   xec.New(d.Status, d.Message),
+		MetaURI:  uri,
+		MetaData: d.ToJSON(),
+		Data:     d,
 	}
 }
 
-func (d *baiduSearchResponse3) ResponseDTO() *Response[SearchPlaceData] {
+func (d *baiduSearchResponse3) ResponseDTO(uri string) *Response[SearchPlaceData] {
 	data := SearchPlaceData{
 		Locations: make([]Location, 0, len(d.Results)),
 	}
@@ -177,14 +178,15 @@ func (d *baiduSearchResponse3) ResponseDTO() *Response[SearchPlaceData] {
 		})
 	}
 	return &Response[SearchPlaceData]{
-		Source: Baidu,
-		Status: xec.New(d.Status, d.Message),
-		Meta:   d.ToJSON(),
-		Data:   data,
+		Source:   Baidu,
+		Status:   xec.New(d.Status, d.Message),
+		MetaURI:  uri,
+		MetaData: d.ToJSON(),
+		Data:     data,
 	}
 }
 
-func (d *baiduDetailResponse) ResponseDTO() *Response[[]PlaceDetailData] {
+func (d *baiduDetailResponse) ResponseDTO(uri string) *Response[[]PlaceDetailData] {
 	var data []PlaceDetailData
 	for _, item := range d.Result {
 		data = append(data, PlaceDetailData{
@@ -201,14 +203,15 @@ func (d *baiduDetailResponse) ResponseDTO() *Response[[]PlaceDetailData] {
 		})
 	}
 	return &Response[[]PlaceDetailData]{
-		Source: Baidu,
-		Status: xec.New(d.Status, d.Message),
-		Meta:   d.ToJSON(),
-		Data:   data,
+		Source:   Baidu,
+		Status:   xec.New(d.Status, d.Message),
+		MetaData: d.ToJSON(),
+		MetaURI:  uri,
+		Data:     data,
 	}
 }
 
-func (d *baiduReverseGeocodingResponse3) ResponseDTO() *Response[ReverseGeocodingData] {
+func (d *baiduReverseGeocodingResponse3) ResponseDTO(uri string) *Response[ReverseGeocodingData] {
 	var child []Location
 	ac := d.Result.AddressComponent
 	for _, item := range d.Result.POIs {
@@ -228,9 +231,10 @@ func (d *baiduReverseGeocodingResponse3) ResponseDTO() *Response[ReverseGeocodin
 		})
 	}
 	return &Response[ReverseGeocodingData]{
-		Source: Baidu,
-		Status: xec.New(d.Status, d.Message),
-		Meta:   d.ToJSON(),
+		Source:   Baidu,
+		Status:   xec.New(d.Status, d.Message),
+		MetaData: d.ToJSON(),
+		MetaURI:  uri,
 		Data: ReverseGeocodingData{
 			Location: Location{
 				ID: "",
