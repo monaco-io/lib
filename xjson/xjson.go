@@ -12,6 +12,16 @@ func Marshal(v any) ([]byte, error) {
 	return xjson.Marshal(v)
 }
 
+func MarshalX(v any) []byte {
+	b, _ := xjson.Marshal(v)
+	return b
+}
+
+func MarshalStringX(v any) string {
+	b, _ := xjson.Marshal(v)
+	return string(b)
+}
+
 func MarshalString(v any) (string, error) {
 	return xjson.MarshalToString(v)
 }
