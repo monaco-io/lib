@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/monaco-io/lib/xec"
+	"github.com/monaco-io/lib/typing/xec"
 	"github.com/monaco-io/lib/xjson"
 )
 
