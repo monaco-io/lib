@@ -166,6 +166,14 @@ func (d *baiduSearchResponse3) ResponseDTO() *Response[SearchPlaceData] {
 			Telephone:    item.Telephone,
 			Tags:         item.GetTags(),
 			Point:        Point{Lat: item.Location.Lat, Lng: item.Location.Lng},
+			Detail: LocationDetail{
+				Classification: strings.Split(item.DetailInfo.ClassifiedPOITag, ";"),
+				Type:           item.DetailInfo.Type,
+				ShopHours:      item.DetailInfo.ShopHours,
+				Price:          item.DetailInfo.Price,
+				Label:          strings.Split(item.DetailInfo.Label, ";"),
+				Photos:         item.DetailInfo.Photos,
+			},
 		})
 	}
 	return &Response[SearchPlaceData]{

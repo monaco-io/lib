@@ -83,19 +83,29 @@ type IResponseDTO[T any] interface {
 	ResponseDTO() *Response[T]
 }
 type Location struct {
-	ID           string   `json:"id"`
-	Name         string   `json:"name"`          // 百度大厦
-	Address      string   `json:"address"`       // 北京市海淀区上地十街10号
-	Country      string   `json:"country"`       // 中国
-	Province     string   `json:"province"`      // 北京市
-	City         string   `json:"city"`          // 北京市
-	Area         string   `json:"area"`          // 海淀区
-	Street       string   `json:"street"`        // 上地十街
-	Town         string   `json:"town"`          // 上地街道
-	StreetNumber string   `json:"street_number"` // 10号
-	Telephone    string   `json:"telephone"`     // 电话(021)38751245
-	Tags         []string `json:"tags"`          // 房地产,写字楼
-	Point        Point    `json:"points"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`          // 百度大厦
+	Address      string         `json:"address"`       // 北京市海淀区上地十街10号
+	Country      string         `json:"country"`       // 中国
+	Province     string         `json:"province"`      // 北京市
+	City         string         `json:"city"`          // 北京市
+	Area         string         `json:"area"`          // 海淀区
+	Street       string         `json:"street"`        // 上地十街
+	Town         string         `json:"town"`          // 上地街道
+	StreetNumber string         `json:"street_number"` // 10号
+	Telephone    string         `json:"telephone"`     // 电话(021)38751245
+	Tags         []string       `json:"tags"`          // 房地产,写字楼
+	Point        Point          `json:"points"`
+	Detail       LocationDetail `json:"detail"`
+}
+
+type LocationDetail struct {
+	Classification []string `json:"classification"` // 类别
+	Type           string   `json:"type"`
+	ShopHours      string   `json:"shop_hours"` // 营业时间
+	Price          string   `json:"price"`
+	Label          []string `json:"label"`  // 标签
+	Photos         []string `json:"photos"` // poi的图片
 }
 
 type Response[T any] struct {
