@@ -23,3 +23,15 @@ func Unmarshal(data []byte, v any) error {
 func UnmarshalString(str string, v any) error {
 	return xjson.UnmarshalFromString(str, v)
 }
+
+func UnmarshalT[T any](b []byte) (T, error) {
+	var v T
+	err := xjson.Unmarshal(b, &v)
+	return v, err
+}
+
+func UnmarshalStringT[T any](str string) (T, error) {
+	var v T
+	err := xjson.UnmarshalFromString(str, &v)
+	return v, err
+}

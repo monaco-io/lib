@@ -2,8 +2,10 @@ package mapsdk
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/monaco-io/lib/xec"
+	"github.com/monaco-io/lib/xjson"
 )
 
 var (
@@ -42,12 +44,19 @@ const (
 )
 
 type ISDK interface {
-	// 搜索区域poi数据
-	SearchPlace(query string, region string) (*Response[SearchPlaceData], error)
-	// 根据id获取详细信息
-	GetPlaceDetail(ids []string) (*Response[[]PlaceDetailData], error)
-	// 根据坐标+类型获取逆地理信息
-	GetReverseGeocoding(point TPoint, poiTypes []string) (*Response[ReverseGeocodingData], error)
+	// 地点检索
+	// baidu 地点检索3.0 https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-placeapiV3/interfaceDocumentV3
+	SearchRegion(params SearchRegionParams, opts ...KV) (*Response[SearchPlaceData], error)
+
+	// 地点详情检索
+	// baidu https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-placeapi/detail
+	GetPlaceDetail(params GetPlaceDetailParams, opts ...KV) (*Response[[]PlaceDetailData], error)
+
+	// 全球逆地理编码
+	// baidu https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-geocoding-abroad-base
+	GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV) (*Response[ReverseGeocodingData], error)
+
+	NativeDo(uri string, kv ...KV) (json.RawMessage, error)
 }
 
 func New(source Source, ak string) ISDK {
@@ -62,6 +71,17 @@ func New(source Source, ak string) ISDK {
 	return nil
 }
 
+type KV func() (k, v string)
+
+func NewKV(k, v string) func() (string, string) {
+	return func() (string, string) {
+		return k, v
+	}
+}
+
+type IResponseDTO[T any] interface {
+	ResponseDTO() *Response[T]
+}
 type Location struct {
 	ID           string   `json:"id"`
 	Name         string   `json:"name"`          // 百度大厦
@@ -73,8 +93,9 @@ type Location struct {
 	Street       string   `json:"street"`        // 上地十街
 	Town         string   `json:"town"`          // 上地街道
 	StreetNumber string   `json:"street_number"` // 10号
-	Tag          []string `json:"tag"`           // 房地产,写字楼
-	Points       []TPoint `json:"points"`
+	Telephone    string   `json:"telephone"`     // 电话(021)38751245
+	Tags         []string `json:"tags"`          // 房地产,写字楼
+	Point        Point    `json:"points"`
 }
 
 type Response[T any] struct {
@@ -107,4 +128,28 @@ type ReverseGeocodingData struct {
 	Location Location   `json:"location"`
 	Child    []Location `json:"child"`
 	Extra    string     `json:"extra"`
+}
+
+type (
+	GetPlaceDetailParams struct {
+		IDs []string
+	}
+	GetReverseGeocodingParams struct {
+		Point             // 圆形区域检索中心点，必填 格式：lat,lng
+		Radius   int      // 圆形区域检索半径，单位米，默认1000
+		PoiTypes []string // 控制返回附近POI类型
+	}
+	SearchRegionParams struct {
+		Keyword string // 检索关键字，必填
+		Region  string // 检索区域，必填
+		Point          // 圆形区域检索中心点，必填 格式：lat,lng
+	}
+)
+
+func unmarshal[IDTO IResponseDTO[T], T any](body json.RawMessage) (*Response[T], error) {
+	target, err := xjson.UnmarshalT[IDTO](body)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal error: %v", err)
+	}
+	return target.ResponseDTO(), nil
 }
