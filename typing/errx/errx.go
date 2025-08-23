@@ -1,4 +1,4 @@
-package xec
+package errx
 
 type Error struct {
 	Message string `json:"message"`

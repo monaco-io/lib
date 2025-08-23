@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/monaco-io/lib/typing/xstring"
+	"github.com/monaco-io/lib/typing/str"
 )
 
 type baidu struct {
@@ -93,7 +93,7 @@ func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV
 	if len(params.PoiTypes) > 0 {
 		opts = append(opts, NewKV("poi_types", strings.Join(params.PoiTypes, "|")))
 	}
-	opts = append(opts, NewKV("radius", xstring.Pick("1000", fmt.Sprintf("%d", params.Radius)))) // 确保开启poi扩展
+	opts = append(opts, NewKV("radius", str.Pick("1000", fmt.Sprintf("%d", params.Radius)))) // 确保开启poi扩展
 	body, err := b.NativeDo("/reverse_geocoding/v3", opts...)
 	if err != nil {
 		return nil, err

@@ -4,35 +4,35 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/monaco-io/lib/typing/xec"
-	"github.com/monaco-io/lib/typing/xjson"
+	"github.com/monaco-io/lib/typing/errx"
+	"github.com/monaco-io/lib/typing/jsonx"
 )
 
 var (
-	OK                      = xec.New(0o000, "ok")
-	ErrorParam              = xec.New(-1000, "invalid parameter")
-	ErrorServerInternal     = xec.New(-1001, "服务器内部错误")
-	ErrorParameterInvalid   = xec.New(-1002, "请求参数非法")
-	ErrorVerifyFailure      = xec.New(-1003, "权限校验失败")
-	ErrorQuotaFailure       = xec.New(-1004, "配额校验失败")
-	ErrorAKFailure          = xec.New(-1005, "ak不存在或者非法")
-	ErrorParseProto         = xec.New(-1008, "数据解析失败")
-	ErrorPermissionDenied   = xec.New(-1009, "高级权限校验失败")
-	ErrorAKNotExist         = xec.New(-1101, "AK参数不存在")
-	ErrorAPPNotExist        = xec.New(-1200, "APP不存在，AK有误请检查再重试")
-	ErrorAPPDisabled        = xec.New(-1201, "APP被用户自己禁用，请在控制台解禁")
-	ErrorAPPDeleted         = xec.New(-1202, "APP被管理员删除")
-	ErrorAPPTypeWrong       = xec.New(-1203, "APP类型错误")
-	ErrorAPPIPCheck         = xec.New(-1210, "APP IP校验失败")
-	ErrorAPPSNCheck         = xec.New(-1211, "APP SN校验失败")
-	ErrorAPPServiceDisabled = xec.New(-1240, "APP 服务被禁用")
-	ErrorUserNotExist       = xec.New(-1250, "用户不存在")
-	ErrorUserDeleted        = xec.New(-1251, "用户被自己删除")
-	ErrorUserBanned         = xec.New(-1252, "用户被管理员删除")
-	ErrorServiceNotExist    = xec.New(-1260, "服务不存在")
-	ErrorServiceDisabled    = xec.New(-1261, "服务被禁用")
-	ErrorQuotaExceeded      = xec.New(-1302, "天配额超限，限制访问")
-	ErrorConcurrencyLimit   = xec.New(-1401, "当前并发量已经超过约定并发配额，限制访问")
+	OK                      = errx.New(0o000, "ok")
+	ErrorParam              = errx.New(-1000, "invalid parameter")
+	ErrorServerInternal     = errx.New(-1001, "服务器内部错误")
+	ErrorParameterInvalid   = errx.New(-1002, "请求参数非法")
+	ErrorVerifyFailure      = errx.New(-1003, "权限校验失败")
+	ErrorQuotaFailure       = errx.New(-1004, "配额校验失败")
+	ErrorAKFailure          = errx.New(-1005, "ak不存在或者非法")
+	ErrorParseProto         = errx.New(-1008, "数据解析失败")
+	ErrorPermissionDenied   = errx.New(-1009, "高级权限校验失败")
+	ErrorAKNotExist         = errx.New(-1101, "AK参数不存在")
+	ErrorAPPNotExist        = errx.New(-1200, "APP不存在，AK有误请检查再重试")
+	ErrorAPPDisabled        = errx.New(-1201, "APP被用户自己禁用，请在控制台解禁")
+	ErrorAPPDeleted         = errx.New(-1202, "APP被管理员删除")
+	ErrorAPPTypeWrong       = errx.New(-1203, "APP类型错误")
+	ErrorAPPIPCheck         = errx.New(-1210, "APP IP校验失败")
+	ErrorAPPSNCheck         = errx.New(-1211, "APP SN校验失败")
+	ErrorAPPServiceDisabled = errx.New(-1240, "APP 服务被禁用")
+	ErrorUserNotExist       = errx.New(-1250, "用户不存在")
+	ErrorUserDeleted        = errx.New(-1251, "用户被自己删除")
+	ErrorUserBanned         = errx.New(-1252, "用户被管理员删除")
+	ErrorServiceNotExist    = errx.New(-1260, "服务不存在")
+	ErrorServiceDisabled    = errx.New(-1261, "服务被禁用")
+	ErrorQuotaExceeded      = errx.New(-1302, "天配额超限，限制访问")
+	ErrorConcurrencyLimit   = errx.New(-1401, "当前并发量已经超过约定并发配额，限制访问")
 )
 
 type Source string
@@ -110,7 +110,7 @@ type LocationDetail struct {
 
 type Response[T any] struct {
 	Source   `json:"source"`
-	Status   xec.Error       `json:"status"`
+	Status   errx.Error      `json:"status"`
 	Data     T               `json:"data"`
 	MetaURI  string          `json:"meta_uri"`
 	MetaData json.RawMessage `json:"meta_data"`
@@ -161,7 +161,7 @@ func unmarshal[IDTO IResponseDTO[T], T any](body *NativeDoResponse) (*Response[T
 	if body == nil {
 		return nil, fmt.Errorf("response body is nil")
 	}
-	target, err := xjson.UnmarshalT[IDTO](body.Body)
+	target, err := jsonx.UnmarshalT[IDTO](body.Body)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal error: %v", err)
 	}
