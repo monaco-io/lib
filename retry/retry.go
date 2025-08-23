@@ -1,7 +1,6 @@
 package retry
 
 import (
-	"errors"
 	"fmt"
 	"time"
 )
@@ -15,7 +14,7 @@ func Do(f func() error, opts Options) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
-			err = errors.New(fmt.Sprintf("panic recoverd: %v", r))
+			err = fmt.Errorf("panic recoverd: %v", r)
 		}
 	}()
 
