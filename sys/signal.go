@@ -45,5 +45,4 @@ func ExitGrace(callback ...func()) {
 	// 终端连接断开
 	case syscall.SIGHUP:
 	}
-
 }
