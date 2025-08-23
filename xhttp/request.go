@@ -55,6 +55,12 @@ func NativeBody(contentType string, body io.Reader) xopt.Option[Request] {
 	}
 }
 
+func URLRawQuery(query url.Values) xopt.Option[Request] {
+	return func(request *Request) {
+		request.URL.RawQuery = query.Encode()
+	}
+}
+
 func BodyJSON[T any](body T) xopt.Option[Request] {
 	return func(request *Request) {
 		NativeBody(ContentTypeJSON, xjson.MarshalReaderX(body))

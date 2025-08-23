@@ -35,6 +35,7 @@ type Response[T any] struct {
 	Code int
 
 	contentType string
+	*http.Request
 }
 
 func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
@@ -67,6 +68,7 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 		Body:        body,
 		Code:        response.StatusCode,
 		contentType: contentType,
+		Request:     response.Request,
 	}, nil
 }
 

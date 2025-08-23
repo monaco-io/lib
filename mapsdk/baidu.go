@@ -1,14 +1,14 @@
 package mapsdk
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/monaco-io/lib/typing/xstr"
+	"github.com/monaco-io/lib/xhttp"
 )
 
 type baidu struct {
@@ -39,24 +39,14 @@ func (b *baidu) NativeDo(uri string, params ...KV) (*NativeDoResponse, error) {
 	}
 	values.Set("ak", b.ak)
 	values.Set("output", "json")
-	url, err := url.Parse(b.host + uri + "?" + values.Encode())
-	if err != nil {
-		return nil, fmt.Errorf("host error: %v", err)
-	}
-	resp, err := http.Get(url.String())
-	if resp.Body != nil {
-		defer resp.Body.Close()
-	}
+	response, err := xhttp.Do(context.Background(), uri,
+		xhttp.URLRawQuery(values))
 	if err != nil {
 		return nil, fmt.Errorf("request error: %v", err)
 	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read response body error: %v", err)
-	}
 	return &NativeDoResponse{
-		URI:  url.String(),
-		Body: body,
+		URI:  response.URL.String(),
+		Body: response.Body,
 	}, nil
 }
 
