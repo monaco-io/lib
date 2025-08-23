@@ -1,4 +1,4 @@
-package log
+package xlog
 
 import (
 	"io"
@@ -10,7 +10,7 @@ import (
 
 var (
 	_encoderConfig = zap.NewDevelopmentEncoderConfig()
-	_autoLevel     = zap.NewAtomicLevel()
+	_level         = zap.NewAtomicLevel()
 
 	name         string
 	writer       zapcore.WriteSyncer
@@ -20,7 +20,7 @@ var (
 	enc          = zapcore.NewJSONEncoder(_encoderConfig)
 	trace        = zap.AddStacktrace(zap.ErrorLevel)
 
-	core = zapcore.NewCore(zapcore.NewConsoleEncoder(_encoderConfig), os.Stdout, _autoLevel)
+	core = zapcore.NewCore(zapcore.NewConsoleEncoder(_encoderConfig), os.Stdout, _level)
 )
 
 func RegisterWriter(writers ...io.Writer) {
@@ -49,12 +49,8 @@ func RegisterErrorWriter(writers ...io.Writer) {
 	newLogger()
 }
 
-func RegisterDebug(debug bool) {
-	if debug {
-		_autoLevel.SetLevel(zap.DebugLevel)
-		return
-	}
-	_autoLevel.SetLevel(zap.InfoLevel)
+func SetLevel(level zapcore.Level) {
+	_level.SetLevel(level)
 }
 
 func RegisterServiceName(serviceName string) {

@@ -29,6 +29,8 @@ const (
 	UNDERSCORE = "_"
 
 	ARROW = "->"
+
+	X_REQUEST_ID = "x-request-id"
 )
 
 func UUID() string {
