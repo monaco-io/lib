@@ -2,6 +2,7 @@ package retry
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/monaco-io/lib/typing/xopt"
@@ -27,7 +28,7 @@ func WithDelay(delay time.Duration) xopt.Option[config] {
 func Do(f func() error, opts ...xopt.Option[config]) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("Recovered in f", r)
+			log.Println("Recovered in f", r)
 			err = fmt.Errorf("panic recoverd: %v", r)
 		}
 	}()
