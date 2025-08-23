@@ -1,7 +1,9 @@
 package xjson
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 
 	"github.com/bytedance/sonic"
 )
@@ -63,4 +65,16 @@ func UnmarshalStringT[T any](str string) (T, error) {
 	var v T
 	err := unmarshal([]byte(str), &v)
 	return v, err
+}
+
+func MarshalReader[T any](data T) (io.Reader, error) {
+	jsonBytes, err := Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(jsonBytes), nil
+}
+
+func MarshalReaderX[T any](data T) io.Reader {
+	return bytes.NewReader(MarshalX(data))
 }

@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>xhttp: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/monaco-io/lib/xhttp/request.go (97.7%)</option>
+				
+				<option value="file1">github.com/monaco-io/lib/xhttp/xhttp.go (73.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package xhttp
+
+import (
+        "context"
+        "io"
+        "mime/multipart"
+        "net/http"
+        "net/url"
+        "strings"
+        "time"
+
+        "github.com/monaco-io/lib/typing/xjson"
+        "github.com/monaco-io/lib/typing/xopt"
+        "github.com/monaco-io/lib/typing/xstr"
+        "github.com/monaco-io/lib/typing/xxml"
+        "github.com/monaco-io/lib/typing/xyaml"
+)
+
+const (
+        ContentType           = "Content-Type"
+        ContentTypeHTML       = "text/html"
+        ContentTypeJSON       = "application/json"
+        ContentTypeXML        = "application/xml"
+        ContentTypeYAML       = "application/x-yaml"
+        ContentTypeText       = "text/plain"
+        ContentTypeURLEncoded = "application/x-www-form-urlencoded"
+)
+
+type Request struct {
+        *http.Request
+        *http.Client
+}
+
+func Method(method string) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Method = method
+        }</span>
+}
+
+func Host(host string) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Host = host
+        }</span>
+}
+
+func Client(client *http.Client) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span>{<span class="cov8" title="1">
+        }</span>
+}
+
+func NativeBody(contentType string, body io.Reader) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Header.Set(ContentType, contentType)
+                request.Body = io.NopCloser(body)
+        }</span>
+}
+
+func BodyJSON[T any](body T) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                NativeBody(ContentTypeJSON, xjson.MarshalReaderX(body))
+        }</span>
+}
+
+func BodyYAML[T any](body T) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                NativeBody(ContentTypeYAML, xyaml.MarshalReaderX(body))
+        }</span>
+}
+
+func BodyXML[T any](body T) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                NativeBody(ContentTypeXML, xxml.MarshalReaderX(body))
+        }</span>
+}
+
+func BodyText(body string) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                NativeBody(ContentTypeText, strings.NewReader(body))
+        }</span>
+}
+
+func BodyWWWFormURLEncoded(body url.Values) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                NativeBody(ContentTypeURLEncoded, strings.NewReader(body.Encode()))
+        }</span>
+}
+
+func Form(form url.Values) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Form = form
+        }</span>
+}
+
+func PostForm(form url.Values) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Request.PostForm = form
+        }</span>
+}
+
+func MultipartForm(form *multipart.Form) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.MultipartForm = form
+        }</span>
+}
+
+func BasicAuth(username, password string) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.SetBasicAuth(username, password)
+        }</span>
+}
+
+func Transport(transport http.RoundTripper) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Transport = transport
+        }</span>
+}
+
+func Timeout(timeout time.Duration) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Timeout = timeout
+        }</span>
+}
+
+func Jar(jar http.CookieJar) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.Jar = jar
+        }</span>
+}
+
+func CheckRedirect(f func(req *http.Request, via []*http.Request) error) xopt.Option[Request] <span class="cov8" title="1">{
+        return func(request *Request) </span><span class="cov8" title="1">{
+                request.CheckRedirect = f
+        }</span>
+}
+
+func build(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Request, error) <span class="cov8" title="1">{
+        if ctx == nil </span><span class="cov0" title="0">{
+                ctx = context.Background()
+        }</span>
+        <span class="cov8" title="1">if _, ok := ctx.Value(requestID).(string); !ok </span><span class="cov8" title="1">{
+                ctx = context.WithValue(ctx, requestID, xstr.UUIDX())
+        }</span>
+        <span class="cov8" title="1">request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">xrequest := &amp;Request{
+                Request: request,
+                Client:  &amp;http.Client{},
+        }
+        xopt.Apply(opts, xrequest)
+        return xrequest, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package xhttp
+
+import (
+        "context"
+        "errors"
+        "io"
+        "net/http"
+        "strings"
+
+        "github.com/monaco-io/lib/typing/xjson"
+        "github.com/monaco-io/lib/typing/xopt"
+        "github.com/monaco-io/lib/typing/xxml"
+        "github.com/monaco-io/lib/typing/xyaml"
+)
+
+type requestid string
+
+const requestID requestid = "x-request-id"
+
+func NativeDo(ctx context.Context, url string, opts ...xopt.Option[Request]) (*http.Response, error) <span class="cov8" title="1">{
+        xrequest, err := build(ctx, url, opts...)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">resp, err := xrequest.Do(xrequest.Request)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return resp, nil</span>
+}
+
+type Response[T any] struct {
+        Body T
+        Code int
+
+        contentType string
+}
+
+func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) <span class="cov8" title="1">{
+        response, err := NativeDo(ctx, url, opts...)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if response == nil </span><span class="cov0" title="0">{
+                return nil, errors.New("response is nil")
+        }</span>
+        <span class="cov8" title="1">body, err := io.ReadAll(response.Body)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if response.Body != nil </span><span class="cov8" title="1">{
+                defer response.Body.Close()
+        }</span>
+        <span class="cov8" title="1">contentType := response.Header.Get(ContentType)
+        if idx := strings.Index(contentType, ";"); idx != -1 </span><span class="cov8" title="1">{
+                contentType = contentType[:idx]
+        }</span> else<span class="cov8" title="1"> if contentType == "" {
+</span>                if response.Request != nil {
+                        reqContentType := response.Request.Header.Get(Conten</span><span class="cov0" title="0">tType)
+                        if idx := strings.Index(reqContentType, ";"); idx != -1 {
+                        </span>        contentType = reqContentType[:idx]
+                        }
+        <span class="cov8" title="1">        }
+        }
+        return &amp;Response[[]byte]{
+                Body:        body,
+                Code:</span>        response.StatusCode,
+                contentType: contentType,
+        }, nil
+}
+
+func Sugar[T an</span><span class="cov8" title="1">y](ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[T], error) {
+        response, err := Do(ctx, url, opts...)
+        i</span>f err != nil {
+        <span class="cov8" title="1">        return nil, err
+        }
+</span>        var result T
+        switch response.contentType {
+</span>        case ContentTypeJSON:
+                i</span>f err := xjson.Unmarshal(response.Body, &amp;result); err != nil {
+                        return nil, err
+                }
+</span>        case ContentTypeXML:
+                i</span>f err := xxml.Unmarshal(response.Body, &amp;result); err != nil {
+                        return nil, err
+                }
+</span>        case ContentTypeYAML:
+                i</span>f err := xyaml.Unmarshal(response.Body, &amp;result); err != nil {
+                        return<span class="cov8" title="1"> nil, err
+                }
+</span>        default:
+        <span class="cov0" title="0">        return nil, errors.New("unsupported content type")
+</span>        }
+        return &amp;Response[T]{Body: result, Code: response.Code}, nil
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
