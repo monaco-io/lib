@@ -4,11 +4,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/exp/constraints"
 )
 
-type Uint interface {
-	~uint64 | ~uint32 | ~uint16 | ~uint8 | ~uint
-}
+type Integer constraints.Integer
 
 var hour8 = (time.Second * 60 * 60 * 8).Seconds()
 
@@ -22,19 +22,19 @@ func SetLocation(location *time.Location) {
 	time.Local = location
 }
 
-func AsMillisecond[T Uint](ms T) time.Duration {
+func AsMillisecond[T Integer](ms T) time.Duration {
 	return time.Duration(ms) * time.Millisecond
 }
 
-func AsSecond[T Uint](s T) time.Duration {
+func AsSecond[T Integer](s T) time.Duration {
 	return time.Duration(s) * time.Second
 }
 
-func AsMinute[T Uint](m T) time.Duration {
+func AsMinute[T Integer](m T) time.Duration {
 	return time.Duration(m) * time.Minute
 }
 
-func AsHour[T Uint](h T) time.Duration {
+func AsHour[T Integer](h T) time.Duration {
 	return time.Duration(h) * time.Hour
 }
 
