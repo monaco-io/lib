@@ -3,28 +3,39 @@ package retry
 import (
 	"fmt"
 	"time"
+
+	"github.com/monaco-io/lib/typing/xopt"
 )
 
-type Options struct {
+type config struct {
 	RetryTimes int
 	Delay      time.Duration
 }
 
-func Do(f func() error, opts Options) (err error) {
+func WithRetryTimes(times int) xopt.Option[config] {
+	return func(cfg *config) {
+		cfg.RetryTimes = times
+	}
+}
+
+func WithDelay(delay time.Duration) xopt.Option[config] {
+	return func(cfg *config) {
+		cfg.Delay = delay
+	}
+}
+
+func Do(f func() error, opts ...xopt.Option[config]) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
 			err = fmt.Errorf("panic recoverd: %v", r)
 		}
 	}()
-
-	if opts.RetryTimes == 0 {
-		opts.RetryTimes = 1
-	}
-
-	for times := 0; times < opts.RetryTimes; times++ {
+	var cfg config
+	xopt.Apply(opts, &cfg)
+	for times := 0; times < cfg.RetryTimes; times++ {
 		if times != 0 {
-			time.Sleep(opts.Delay)
+			time.Sleep(cfg.Delay)
 		}
 		if err = f(); err == nil {
 			break
