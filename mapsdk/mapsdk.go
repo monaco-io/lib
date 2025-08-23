@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/monaco-io/lib/typing/xec"
-	"github.com/monaco-io/lib/xjson"
+	"github.com/monaco-io/lib/typing/xjson"
 )
 
 var (
