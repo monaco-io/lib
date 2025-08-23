@@ -288,25 +288,6 @@ func TestRequestOptions(t *testing.T) {
 		}
 	})
 
-	t.Run("Host option", func(t *testing.T) {
-		ctx := context.Background()
-		resp, err := Do(ctx, server.URL+"/echo", Host("custom-host.com"))
-		if err != nil {
-			t.Errorf("Host option test error: %v", err)
-			return
-		}
-
-		var echoResp map[string]interface{}
-		if err := json.Unmarshal(resp.Body, &echoResp); err != nil {
-			t.Errorf("Failed to parse echo response: %v", err)
-			return
-		}
-
-		if echoResp["host"] != "custom-host.com" {
-			t.Errorf("Host = %v, want custom-host.com", echoResp["host"])
-		}
-	})
-
 	t.Run("BasicAuth option", func(t *testing.T) {
 		ctx := context.Background()
 		resp, err := Do(ctx, server.URL+"/auth", BasicAuth("user", "pass"))
@@ -945,8 +926,6 @@ func TestCustomClient(t *testing.T) {
 	})
 
 	t.Run("client that doesn't follow redirects", func(t *testing.T) {
-		// Note: The Client() function in request.go doesn't actually implement
-		// setting a custom client, so this test demonstrates the limitation
 		customClient := &http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
@@ -960,18 +939,14 @@ func TestCustomClient(t *testing.T) {
 
 		ctx := context.Background()
 		resp, err := Do(ctx, redirectServer.URL, Client(customClient))
-
-		// Since Client() doesn't actually set the client, this will follow redirects
 		if err != nil {
-			// The default client follows redirects, but may hit redirect limit
-			if !strings.Contains(err.Error(), "stopped after 10 redirects") {
-				t.Errorf("No redirect client test unexpected error: %v", err)
-			}
-		} else {
-			// If no error, it should be 200 OK (followed redirect)
-			if resp.Code != http.StatusOK {
-				t.Errorf("Response code = %v, want %v (followed redirect)", resp.Code, http.StatusOK)
-			}
+			t.Errorf("No redirect client test error: %v", err)
+			return
+		}
+
+		// Since we're not following redirects, we should get 302 Found
+		if resp.Code != http.StatusFound {
+			t.Errorf("Response code = %v, want %v (not following redirects)", resp.Code, http.StatusFound)
 		}
 	})
 }
@@ -1243,65 +1218,6 @@ func TestBodyFunctions(t *testing.T) {
 	})
 }
 
-func TestFormFunctions(t *testing.T) {
-	server := setupTestServer()
-	defer server.Close()
-
-	t.Run("Form function", func(t *testing.T) {
-		form := url.Values{}
-		form.Add("name", "form-user")
-		form.Add("email", "form@test.com")
-
-		ctx := context.Background()
-		req, err := build(ctx, server.URL+"/form",
-			Method("POST"),
-			Form(form),
-		)
-		if err != nil {
-			t.Fatalf("Failed to build request: %v", err)
-		}
-
-		// Verify Form was set
-		if req.Form == nil {
-			t.Error("Form was not set on request")
-		}
-
-		resp, err := req.Do(req.Request)
-		if err != nil {
-			t.Errorf("Form test error: %v", err)
-			return
-		}
-		defer resp.Body.Close()
-	})
-
-	t.Run("PostForm function", func(t *testing.T) {
-		form := url.Values{}
-		form.Add("name", "postform-user")
-		form.Add("email", "postform@test.com")
-
-		ctx := context.Background()
-		req, err := build(ctx, server.URL+"/form",
-			Method("POST"),
-			PostForm(form),
-		)
-		if err != nil {
-			t.Fatalf("Failed to build request: %v", err)
-		}
-
-		// Verify PostForm was set
-		if req.Request.PostForm == nil {
-			t.Error("PostForm was not set on request")
-		}
-
-		resp, err := req.Do(req.Request)
-		if err != nil {
-			t.Errorf("PostForm test error: %v", err)
-			return
-		}
-		defer resp.Body.Close()
-	})
-}
-
 func TestClientConfigurationFunctions(t *testing.T) {
 	server := setupTestServer()
 	defer server.Close()
@@ -1489,17 +1405,28 @@ func TestMultipartFormFunction(t *testing.T) {
 			},
 		}
 
-		// Test MultipartForm option
+		// Test BodyMultipartForm option
 		ctx := context.Background()
 		req, err := build(ctx, "http://example.com",
-			MultipartForm(form),
+			BodyMultipartForm(form),
 		)
 		if err != nil {
-			t.Fatalf("Failed to build request with MultipartForm: %v", err)
+			t.Fatalf("Failed to build request with BodyMultipartForm: %v", err)
 		}
 
-		if req.MultipartForm != form {
-			t.Error("MultipartForm did not set multipart form correctly")
+		// Verify that the body was set (BodyMultipartForm converts form to body)
+		if req.Body == nil {
+			t.Error("BodyMultipartForm did not set request body")
+		}
+
+		// Verify that the content type was set correctly
+		if req.Header == nil {
+			t.Error("BodyMultipartForm did not set headers")
+		} else {
+			contentType := req.Header.Get("Content-Type")
+			if !strings.Contains(contentType, "multipart/form-data") {
+				t.Errorf("BodyMultipartForm content type = %v, want multipart/form-data", contentType)
+			}
 		}
 	})
 }

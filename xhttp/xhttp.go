@@ -23,7 +23,14 @@ func NativeDo(ctx context.Context, url string, opts ...xopt.Option[Request]) (*h
 	if err != nil {
 		return nil, err
 	}
-	resp, err := xrequest.Do(xrequest.Request)
+
+	// Use the custom client if provided, otherwise use the default client
+	client := xrequest.Client
+	if client == nil {
+		client = http.DefaultClient
+	}
+
+	resp, err := client.Do(xrequest.Request)
 	if err != nil {
 		return nil, err
 	}

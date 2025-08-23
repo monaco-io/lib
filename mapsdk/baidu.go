@@ -39,7 +39,7 @@ func (b *baidu) NativeDo(uri string, params ...KV) (*NativeDoResponse, error) {
 	}
 	values.Set("ak", b.ak)
 	values.Set("output", "json")
-	response, err := xhttp.Do(context.Background(), uri,
+	response, err := xhttp.Do(context.Background(), b.host+uri,
 		xhttp.URLRawQuery(values))
 	if err != nil {
 		return nil, fmt.Errorf("request error: %v", err)

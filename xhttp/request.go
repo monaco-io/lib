@@ -1,6 +1,7 @@
 package xhttp
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"mime/multipart"
@@ -37,14 +38,9 @@ func Method(method string) xopt.Option[Request] {
 	}
 }
 
-func Host(host string) xopt.Option[Request] {
-	return func(request *Request) {
-		request.Host = host
-	}
-}
-
 func Client(client *http.Client) xopt.Option[Request] {
 	return func(request *Request) {
+		request.Client = client
 	}
 }
 
@@ -63,49 +59,67 @@ func URLRawQuery(query url.Values) xopt.Option[Request] {
 
 func BodyJSON[T any](body T) xopt.Option[Request] {
 	return func(request *Request) {
-		NativeBody(ContentTypeJSON, xjson.MarshalReaderX(body))
+		NativeBody(ContentTypeJSON, xjson.MarshalReaderX(body))(request)
 	}
 }
 
 func BodyYAML[T any](body T) xopt.Option[Request] {
 	return func(request *Request) {
-		NativeBody(ContentTypeYAML, xyaml.MarshalReaderX(body))
+		NativeBody(ContentTypeYAML, xyaml.MarshalReaderX(body))(request)
 	}
 }
 
 func BodyXML[T any](body T) xopt.Option[Request] {
 	return func(request *Request) {
-		NativeBody(ContentTypeXML, xxml.MarshalReaderX(body))
+		NativeBody(ContentTypeXML, xxml.MarshalReaderX(body))(request)
 	}
 }
 
 func BodyText(body string) xopt.Option[Request] {
 	return func(request *Request) {
-		NativeBody(ContentTypeText, strings.NewReader(body))
+		NativeBody(ContentTypeText, strings.NewReader(body))(request)
 	}
 }
 
 func BodyWWWFormURLEncoded(body url.Values) xopt.Option[Request] {
 	return func(request *Request) {
-		NativeBody(ContentTypeURLEncoded, strings.NewReader(body.Encode()))
+		NativeBody(ContentTypeURLEncoded, strings.NewReader(body.Encode()))(request)
 	}
 }
 
-func Form(form url.Values) xopt.Option[Request] {
+func BodyMultipartForm(form *multipart.Form) xopt.Option[Request] {
 	return func(request *Request) {
-		request.Form = form
-	}
-}
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
 
-func PostForm(form url.Values) xopt.Option[Request] {
-	return func(request *Request) {
-		request.Request.PostForm = form
-	}
-}
+		// Write form values
+		for key, values := range form.Value {
+			for _, value := range values {
+				_ = writer.WriteField(key, value)
+			}
+		}
 
-func MultipartForm(form *multipart.Form) xopt.Option[Request] {
-	return func(request *Request) {
-		request.MultipartForm = form
+		// Write form files
+		for key, files := range form.File {
+			for _, fileHeader := range files {
+				file, err := fileHeader.Open()
+				if err != nil {
+					continue
+				}
+				defer file.Close()
+
+				part, err := writer.CreateFormFile(key, fileHeader.Filename)
+				if err != nil {
+					continue
+				}
+				_, _ = io.Copy(part, file)
+			}
+		}
+
+		writer.Close()
+
+		contentType := writer.FormDataContentType()
+		NativeBody(contentType, &buf)(request)
 	}
 }
 
