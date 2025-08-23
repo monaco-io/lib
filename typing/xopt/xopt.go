@@ -1,4 +1,4 @@
-package option
+package xopt
 
 type Option[T any] func(*T)
 

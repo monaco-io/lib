@@ -1,10 +1,10 @@
-package queue
+package xqueue
 
 import (
 	"log"
 	"sync"
 
-	"github.com/monaco-io/lib/typing/option"
+	"github.com/monaco-io/lib/typing/xopt"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -24,13 +24,13 @@ type Config struct {
 	errHandler func(err error)
 }
 
-func WithMaxProps(n int) option.Option[Config] {
+func WithMaxProps(n int) xopt.Option[Config] {
 	return func(o *Config) {
 		o.maxProps = n
 	}
 }
 
-func WithErrorHandler(fn func(err error)) option.Option[Config] {
+func WithErrorHandler(fn func(err error)) xopt.Option[Config] {
 	return func(o *Config) {
 		o.errHandler = fn
 	}
@@ -48,14 +48,14 @@ type queue[T any] struct {
 	once     sync.Once
 }
 
-func New[T any](consumer func(data T) error, opts ...option.Option[Config]) Queue[T] {
+func New[T any](consumer func(data T) error, opts ...xopt.Option[Config]) Queue[T] {
 	cfg := Config{
 		maxProps: defaultMaxProps,
 		errHandler: func(err error) {
 			log.Printf("lib.queue Error occurred: %v\n", err)
 		},
 	}
-	option.Apply(opts, &cfg)
+	xopt.Apply(opts, &cfg)
 	q := queue[T]{
 		ch:              make(chan T, defaultBufferSize),
 		errCh:           make(chan error),

@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/monaco-io/lib/typing"
-	"github.com/monaco-io/lib/typing/option"
+	x "github.com/monaco-io/lib/typing"
+	"github.com/monaco-io/lib/typing/xopt"
 )
 
 var ErrMiss = errors.New("lib.cache.lru:miss")
@@ -36,19 +36,19 @@ type config[K comparable, V any] struct {
 	sourceFunc func(context.Context, K) (V, error)
 }
 
-func WithLimit[K comparable, V any](limit uint) option.Option[config[K, V]] {
+func WithLimit[K comparable, V any](limit uint) xopt.Option[config[K, V]] {
 	return func(cfg *config[K, V]) {
 		cfg.limit = limit
 	}
 }
 
-func WithTTL[K comparable, V any](ttl time.Duration) option.Option[config[K, V]] {
+func WithTTL[K comparable, V any](ttl time.Duration) xopt.Option[config[K, V]] {
 	return func(cfg *config[K, V]) {
 		cfg.ttl = ttl
 	}
 }
 
-func WithSourceFunc[K comparable, V any](sf func(context.Context, K) (V, error)) option.Option[config[K, V]] {
+func WithSourceFunc[K comparable, V any](sf func(context.Context, K) (V, error)) xopt.Option[config[K, V]] {
 	return func(cfg *config[K, V]) {
 		cfg.sourceFunc = sf
 	}
@@ -57,19 +57,19 @@ func WithSourceFunc[K comparable, V any](sf func(context.Context, K) (V, error))
 // New creates a new Cache.
 // If maxEntries is zero, the cache has no limit and it's assumed
 // that eviction is done by the caller.
-func New[K comparable, V any](opts ...option.Option[config[K, V]]) ICache[K, V] {
+func New[K comparable, V any](opts ...xopt.Option[config[K, V]]) ICache[K, V] {
 	cfg := config[K, V]{
 		limit: defaultLength,
 		ttl:   defaultTTL,
 	}
-	option.Apply(opts, &cfg)
+	xopt.Apply(opts, &cfg)
 	c := lru[K, V]{
 		size: int(cfg.limit),
 		ttl:  cfg.ttl,
 		cb:   cfg.sourceFunc,
 
-		data: typing.NewLinkedList[*entry[K, V]](),
-		hash: typing.NewSyncMap[K, *typing.Element[*entry[K, V]]](),
+		data: x.NewLinkedList[*entry[K, V]](),
+		hash: x.NewSyncMap[K, *x.Element[*entry[K, V]]](),
 		lock: new(sync.Mutex),
 	}
 	return &c

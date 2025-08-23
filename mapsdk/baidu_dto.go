@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/monaco-io/lib/typing/errx"
-	"github.com/monaco-io/lib/typing/str"
+	"github.com/monaco-io/lib/typing/xec"
+	"github.com/monaco-io/lib/typing/xstr"
 	"github.com/samber/lo"
 )
 
@@ -141,7 +141,7 @@ type (
 func (d *BaiduResponse) ResponseDTO(uri string) *Response[*BaiduResponse] {
 	return &Response[*BaiduResponse]{
 		Source:   Baidu,
-		Status:   errx.New(d.Status, d.Message),
+		Status:   xec.New(d.Status, d.Message),
 		MetaURI:  uri,
 		MetaData: d.ToJSON(),
 		Data:     d,
@@ -179,7 +179,7 @@ func (d *baiduSearchResponse3) ResponseDTO(uri string) *Response[SearchPlaceData
 	}
 	return &Response[SearchPlaceData]{
 		Source:   Baidu,
-		Status:   errx.New(d.Status, d.Message),
+		Status:   xec.New(d.Status, d.Message),
 		MetaURI:  uri,
 		MetaData: d.ToJSON(),
 		Data:     data,
@@ -204,7 +204,7 @@ func (d *baiduDetailResponse) ResponseDTO(uri string) *Response[[]PlaceDetailDat
 	}
 	return &Response[[]PlaceDetailData]{
 		Source:   Baidu,
-		Status:   errx.New(d.Status, d.Message),
+		Status:   xec.New(d.Status, d.Message),
 		MetaData: d.ToJSON(),
 		MetaURI:  uri,
 		Data:     data,
@@ -218,11 +218,11 @@ func (d *baiduReverseGeocodingResponse3) ResponseDTO(uri string) *Response[Rever
 		child = append(child, Location{
 			ID:           item.UID,
 			Name:         item.Name,
-			Address:      str.DefaultIfBlank(item.Address, d.Result.FormattedAddress),
+			Address:      xstr.DefaultIfBlank(item.Address, d.Result.FormattedAddress),
 			Country:      "",
-			Province:     str.DefaultIfBlank(item.Province, ac.Province),
-			City:         str.DefaultIfBlank(item.City, ac.City),
-			Area:         str.DefaultIfBlank(item.Area, ac.District),
+			Province:     xstr.DefaultIfBlank(item.Province, ac.Province),
+			City:         xstr.DefaultIfBlank(item.City, ac.City),
+			Area:         xstr.DefaultIfBlank(item.Area, ac.District),
 			Street:       "",
 			Town:         item.Town,
 			StreetNumber: "",
@@ -232,7 +232,7 @@ func (d *baiduReverseGeocodingResponse3) ResponseDTO(uri string) *Response[Rever
 	}
 	return &Response[ReverseGeocodingData]{
 		Source:   Baidu,
-		Status:   errx.New(d.Status, d.Message),
+		Status:   xec.New(d.Status, d.Message),
 		MetaData: d.ToJSON(),
 		MetaURI:  uri,
 		Data: ReverseGeocodingData{

@@ -3,7 +3,7 @@ package lru
 import (
 	"time"
 
-	"github.com/monaco-io/lib/typing"
+	typing "github.com/monaco-io/lib/typing"
 )
 
 func (c *lru[K, V]) moveToFront(ele *typing.Element[*entry[K, V]]) {

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/monaco-io/lib/typing"
+	x "github.com/monaco-io/lib/typing"
 )
 
 const (
@@ -24,8 +24,8 @@ type lru[K comparable, V any] struct {
 	ttl time.Duration
 	cb  func(context.Context, K) (V, error)
 
-	data *typing.LinkedList[*entry[K, V]]
-	hash *typing.SyncMap[K, *typing.Element[*entry[K, V]]]
+	data *x.LinkedList[*entry[K, V]]
+	hash *x.SyncMap[K, *x.Element[*entry[K, V]]]
 	lock sync.Locker
 }
 
@@ -38,8 +38,8 @@ type entry[K comparable, V any] struct {
 // Set adds a value to the cache.
 func (c *lru[K, V]) Set(key K, value V) {
 	if c.hash == nil {
-		c.hash = typing.NewSyncMap[K, *typing.Element[*entry[K, V]]]()
-		c.data = typing.NewLinkedList[*entry[K, V]]()
+		c.hash = x.NewSyncMap[K, *x.Element[*entry[K, V]]]()
+		c.data = x.NewLinkedList[*entry[K, V]]()
 	}
 	if ee, ok := c.hash.Load(key); ok {
 		c.moveToFront(ee)
@@ -89,8 +89,8 @@ func (c *lru[K, V]) Len() int {
 
 // Clear purges all stored items from the cache.
 func (c *lru[K, V]) Flush() {
-	c.data = typing.NewLinkedList[*entry[K, V]]()
-	c.hash = typing.NewSyncMap[K, *typing.Element[*entry[K, V]]]()
+	c.data = x.NewLinkedList[*entry[K, V]]()
+	c.hash = x.NewSyncMap[K, *x.Element[*entry[K, V]]]()
 }
 
 // Clear purges all stored items from the cache.

@@ -1,10 +1,10 @@
-package queue
+package xqueue
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/monaco-io/lib/typing/option"
+	"github.com/monaco-io/lib/typing/xopt"
 )
 
 func TestNew(t *testing.T) {
@@ -13,7 +13,7 @@ func TestNew(t *testing.T) {
 	}
 	type args struct {
 		consumer func(data T) error
-		opts     []option.Option[Config]
+		opts     []xopt.Option[Config]
 	}
 	tests := []struct {
 		name string
@@ -30,7 +30,7 @@ func TestNew(t *testing.T) {
 					}
 					return nil
 				},
-				opts: []option.Option[Config]{},
+				opts: []xopt.Option[Config]{},
 			},
 			want: nil, // This would need to be updated based on actual Queue implementation
 		},

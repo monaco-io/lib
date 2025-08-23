@@ -1,4 +1,4 @@
-package lib
+package xlang
 
 type Language string
 
