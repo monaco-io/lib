@@ -6,20 +6,20 @@ import (
 	"github.com/monaco-io/lib/typing"
 )
 
-func (c *Cache[K, V]) moveToFront(ele *typing.Element[*entry[K, V]]) {
+func (c *lru[K, V]) moveToFront(ele *typing.Element[*entry[K, V]]) {
 	c.lock.Lock()
 	c.data.MoveToFront(ele)
 	c.lock.Unlock()
 }
 
-func (c *Cache[K, V]) pushFront(v *entry[K, V]) (ele *typing.Element[*entry[K, V]]) {
+func (c *lru[K, V]) pushFront(v *entry[K, V]) (ele *typing.Element[*entry[K, V]]) {
 	c.lock.Lock()
 	ele = c.data.PushFront(v)
 	c.lock.Unlock()
 	return
 }
 
-func (c *Cache[K, V]) remove(e *typing.Element[*entry[K, V]]) {
+func (c *lru[K, V]) remove(e *typing.Element[*entry[K, V]]) {
 	c.lock.Lock()
 	c.data.Remove(e)
 	c.lock.Unlock()
@@ -27,7 +27,7 @@ func (c *Cache[K, V]) remove(e *typing.Element[*entry[K, V]]) {
 }
 
 // removeOldest removes the oldest item from the cache.
-func (c *Cache[K, V]) removeOldest() {
+func (c *lru[K, V]) removeOldest() {
 	if c.hash == nil {
 		return
 	}

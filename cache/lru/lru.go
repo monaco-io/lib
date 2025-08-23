@@ -2,13 +2,41 @@ package lru
 
 import (
 	"context"
+	"math"
+	"sync"
+	"time"
 
 	"github.com/monaco-io/lib/typing"
-	"github.com/pkg/errors"
 )
 
+const (
+	defaultTTL    = time.Second * 1 << 6
+	defaultLength = math.MaxInt16
+)
+
+// lru is an LRU lru. It is not safe for concurrent access.
+type lru[K comparable, V any] struct {
+	// size is the maximum number of cache entries before
+	// an item is evicted. Zero means no size.
+	size int
+
+	// expire time
+	ttl time.Duration
+	cb  func(context.Context, K) (V, error)
+
+	data *typing.LinkedList[*entry[K, V]]
+	hash *typing.SyncMap[K, *typing.Element[*entry[K, V]]]
+	lock sync.Locker
+}
+
+type entry[K comparable, V any] struct {
+	key    K
+	value  V
+	expire time.Time
+}
+
 // Set adds a value to the cache.
-func (c *Cache[K, V]) Set(key K, value V) {
+func (c *lru[K, V]) Set(key K, value V) {
 	if c.hash == nil {
 		c.hash = typing.NewSyncMap[K, *typing.Element[*entry[K, V]]]()
 		c.data = typing.NewLinkedList[*entry[K, V]]()
@@ -21,13 +49,13 @@ func (c *Cache[K, V]) Set(key K, value V) {
 	expire := now().Add(c.ttl)
 	ele := c.pushFront(&entry[K, V]{key, value, expire})
 	c.hash.Store(key, ele)
-	if c.limit != 0 && c.data.Len() > c.limit {
+	if c.size != 0 && c.data.Len() > c.size {
 		c.removeOldest()
 	}
 }
 
 // Get looks up a key's value from the cache.
-func (c *Cache[K, V]) Get(key K) (value V, ok bool) {
+func (c *lru[K, V]) get(key K) (value V, ok bool) {
 	if c.hash == nil {
 		return
 	}
@@ -42,7 +70,7 @@ func (c *Cache[K, V]) Get(key K) (value V, ok bool) {
 }
 
 // Remove removes the provided key from the cache.
-func (c *Cache[K, V]) Remove(key K) {
+func (c *lru[K, V]) Remove(key K) {
 	if c.hash == nil {
 		return
 	}
@@ -52,7 +80,7 @@ func (c *Cache[K, V]) Remove(key K) {
 }
 
 // Len returns the number of items in the cache.
-func (c *Cache[K, V]) Len() int {
+func (c *lru[K, V]) Len() int {
 	if c.hash == nil {
 		return 0
 	}
@@ -60,22 +88,23 @@ func (c *Cache[K, V]) Len() int {
 }
 
 // Clear purges all stored items from the cache.
-func (c *Cache[K, V]) Flush() {
+func (c *lru[K, V]) Flush() {
 	c.data = typing.NewLinkedList[*entry[K, V]]()
 	c.hash = typing.NewSyncMap[K, *typing.Element[*entry[K, V]]]()
 }
 
 // Clear purges all stored items from the cache.
-func (c *CacheC[K, V]) GetC(ctx context.Context, key K) (value V, err error) {
-	value, ok := c.Get(key)
-	if ok {
-		return
+func (c *lru[K, V]) Get(ctx context.Context, key K) (dv V, _ error) {
+	if v, ok := c.get(key); ok {
+		return v, nil
 	}
-	value, err = c.cb(ctx, key)
-	if err != nil {
-		err = errors.Wrap(err, "callback")
-		return
+	if c.cb != nil {
+		if v, err := c.cb(ctx, key); err != nil {
+			return dv, err
+		} else {
+			c.Set(key, v)
+			return v, nil
+		}
 	}
-	c.Set(key, value)
-	return
+	return dv, ErrMiss
 }
