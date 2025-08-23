@@ -31,13 +31,6 @@ const (
 	ARROW = "->"
 )
 
-func Pick(a, b string) string {
-	if a != "" {
-		return a
-	}
-	return b
-}
-
 func UUID() string {
 	return uuid.NewString()
 }

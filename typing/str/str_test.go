@@ -6,27 +6,6 @@ import (
 	"testing"
 )
 
-func TestPick(t *testing.T) {
-	tests := []struct {
-		name string
-		a    string
-		b    string
-		want string
-	}{
-		{"first not empty", "hello", "world", "hello"},
-		{"first empty", "", "world", "world"},
-		{"both empty", "", "", ""},
-		{"both not empty", "hello", "world", "hello"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Pick(tt.a, tt.b); got != tt.want {
-				t.Errorf("Pick() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestUUID(t *testing.T) {
 	got := UUID()
 	if len(got) != 36 {
@@ -853,13 +832,6 @@ func TestFormat(t *testing.T) {
 				t.Errorf("Format() = %v, want %v", got, tt.want)
 			}
 		})
-	}
-}
-
-// Benchmarks
-func BenchmarkPick(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		Pick("hello", "world")
 	}
 }
 
