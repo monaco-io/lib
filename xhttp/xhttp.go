@@ -38,11 +38,11 @@ func NativeDo(ctx context.Context, url string, opts ...xopt.Option[Request]) (*h
 }
 
 type Response[T any] struct {
-	Body T
-	Code int
+	Body T   `json:"body"`
+	Code int `json:"code"`
 
-	contentType string
-	*http.Request
+	contentType   string `json:"-"`
+	*http.Request `json:"-"`
 }
 
 func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
