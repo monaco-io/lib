@@ -60,15 +60,15 @@ func Sugar[T any](ctx context.Context, url string, opts ...xopt.Option[Request])
 	switch response.Request.decoder {
 	case decoderJSON:
 		if err := xjson.Unmarshal(response.Body, &result); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Sugar.Decode: failed to decode JSON: %w", err)
 		}
 	case decoderXML:
 		if err := xxml.Unmarshal(response.Body, &result); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Sugar.Decode: failed to decode XML: %w", err)
 		}
 	case decoderYAML:
 		if err := xyaml.Unmarshal(response.Body, &result); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Sugar.Decode: failed to decode YAML: %w", err)
 		}
 	case decoderText:
 		switch any(result).(type) {
