@@ -30,11 +30,48 @@ const (
 type Request struct {
 	*http.Request
 	*http.Client
+
+	decoder
 }
+
+type decoder string
+
+const defaultDecoder = decoderJSON
+
+const (
+	decoderJSON decoder = "json"
+	decoderXML  decoder = "xml"
+	decoderYAML decoder = "yaml"
+	decoderText decoder = "text"
+)
 
 func Method(method string) xopt.Option[Request] {
 	return func(request *Request) {
 		request.Method = method
+	}
+}
+
+func DecoderJSON() xopt.Option[Request] {
+	return func(request *Request) {
+		request.decoder = decoderJSON
+	}
+}
+
+func DecoderXML() xopt.Option[Request] {
+	return func(request *Request) {
+		request.decoder = decoderXML
+	}
+}
+
+func DecoderYAML() xopt.Option[Request] {
+	return func(request *Request) {
+		request.decoder = decoderYAML
+	}
+}
+
+func DecoderText() xopt.Option[Request] {
+	return func(request *Request) {
+		request.decoder = decoderText
 	}
 }
 
@@ -186,7 +223,8 @@ func build(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Requ
 	}
 	xrequest := &Request{
 		Request: request,
-		Client:  &http.Client{},
+		Client:  http.DefaultClient,
+		decoder: defaultDecoder,
 	}
 	xopt.Apply(opts, xrequest)
 	return xrequest, nil

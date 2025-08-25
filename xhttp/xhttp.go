@@ -3,13 +3,12 @@ package xhttp
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/monaco-io/lib/typing/xjson"
 	"github.com/monaco-io/lib/typing/xopt"
-	"github.com/monaco-io/lib/typing/xstr"
 	"github.com/monaco-io/lib/typing/xxml"
 	"github.com/monaco-io/lib/typing/xyaml"
 )
@@ -18,35 +17,24 @@ type requestid string
 
 const requestID requestid = "x-request-id"
 
-func NativeDo(ctx context.Context, url string, opts ...xopt.Option[Request]) (*http.Response, error) {
+type Response[T any] struct {
+	Body T   `json:"body" xml:"body" yaml:"body"`
+	Code int `json:"code" xml:"code" yaml:"code"`
+
+	*Request `json:"-" xml:"-" yaml:"-"`
+}
+
+func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
 	xrequest, err := build(ctx, url, opts...)
 	if err != nil {
 		return nil, err
 	}
-
-	// Use the custom client if provided, otherwise use the default client
 	client := xrequest.Client
 	if client == nil {
 		client = http.DefaultClient
 	}
 
-	resp, err := client.Do(xrequest.Request)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-type Response[T any] struct {
-	Body T   `json:"body"`
-	Code int `json:"code"`
-
-	contentType   string `json:"-"`
-	*http.Request `json:"-"`
-}
-
-func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
-	response, err := NativeDo(ctx, url, opts...)
+	response, err := client.Do(xrequest.Request)
 	if err != nil {
 		return nil, err
 	}
@@ -60,22 +48,11 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 	if response.Body != nil {
 		defer response.Body.Close()
 	}
-	contentType := response.Header.Get(ContentType)
-	if idx := strings.Index(contentType, xstr.SEMICOLON); idx != -1 {
-		contentType = contentType[:idx]
-	} else if contentType == "" {
-		if response.Request != nil {
-			reqContentType := response.Request.Header.Get(ContentType)
-			if idx := strings.Index(reqContentType, xstr.SEMICOLON); idx != -1 {
-				contentType = reqContentType[:idx]
-			}
-		}
-	}
+
 	return &Response[[]byte]{
-		Body:        body,
-		Code:        response.StatusCode,
-		contentType: contentType,
-		Request:     response.Request,
+		Body:    body,
+		Code:    response.StatusCode,
+		Request: xrequest,
 	}, nil
 }
 
@@ -85,21 +62,32 @@ func Sugar[T any](ctx context.Context, url string, opts ...xopt.Option[Request])
 		return nil, err
 	}
 	var result T
-	switch response.contentType {
-	case ContentTypeJSON:
+	switch response.Request.decoder {
+	case decoderJSON:
 		if err := xjson.Unmarshal(response.Body, &result); err != nil {
 			return nil, err
 		}
-	case ContentTypeXML:
+	case decoderXML:
 		if err := xxml.Unmarshal(response.Body, &result); err != nil {
 			return nil, err
 		}
-	case ContentTypeYAML:
+	case decoderYAML:
 		if err := xyaml.Unmarshal(response.Body, &result); err != nil {
 			return nil, err
 		}
+	case decoderText:
+		switch any(result).(type) {
+		case string:
+			result = any(string(response.Body)).(T)
+		case *string:
+			result = any(string(response.Body)).(T)
+		case []byte:
+			result = any(response.Body).(T)
+		case *[]byte:
+			result = any(response.Body).(T)
+		}
 	default:
-		return nil, errors.New("unsupported content type")
+		return nil, fmt.Errorf("Sugar.Decode: unsupported type=%T, body=%s", result, response.Body)
 	}
-	return &Response[T]{Body: result, Code: response.Code}, nil
+	return &Response[T]{Body: result, Code: response.Code, Request: response.Request}, nil
 }

@@ -133,70 +133,6 @@ email: test@example.com`))
 	return httptest.NewServer(mux)
 }
 
-func TestNativeDo(t *testing.T) {
-	server := setupTestServer()
-	defer server.Close()
-
-	tests := []struct {
-		name       string
-		url        string
-		opts       []xopt.Option[Request]
-		wantErr    bool
-		wantStatus int
-	}{
-		{
-			name:       "simple GET request",
-			url:        server.URL + "/json",
-			opts:       nil,
-			wantErr:    false,
-			wantStatus: http.StatusOK,
-		},
-		{
-			name:       "POST request with method option",
-			url:        server.URL + "/echo",
-			opts:       []xopt.Option[Request]{Method("POST")},
-			wantErr:    false,
-			wantStatus: http.StatusOK,
-		},
-		{
-			name:    "invalid URL",
-			url:     "://invalid-url",
-			opts:    nil,
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := context.Background()
-			resp, err := NativeDo(ctx, tt.url, tt.opts...)
-
-			if tt.wantErr {
-				if err == nil {
-					t.Errorf("NativeDo() expected error, got nil")
-				}
-				return
-			}
-
-			if err != nil {
-				t.Errorf("NativeDo() unexpected error: %v", err)
-				return
-			}
-
-			if resp == nil {
-				t.Error("NativeDo() returned nil response")
-				return
-			}
-
-			if resp.StatusCode != tt.wantStatus {
-				t.Errorf("NativeDo() status = %v, want %v", resp.StatusCode, tt.wantStatus)
-			}
-
-			resp.Body.Close()
-		})
-	}
-}
-
 func TestDo(t *testing.T) {
 	server := setupTestServer()
 	defer server.Close()
@@ -718,7 +654,7 @@ func TestHeaders(t *testing.T) {
 		ctx := context.Background()
 
 		// Add custom headers using NativeBody approach
-		resp, err := NativeDo(ctx, server.URL+"/echo", func(req *Request) {
+		resp, err := Do(ctx, server.URL+"/echo", func(req *Request) {
 			req.Header.Set("X-Custom-Header", "test-value")
 			req.Header.Set("User-Agent", "test-agent/1.0")
 		})
@@ -726,10 +662,9 @@ func TestHeaders(t *testing.T) {
 			t.Errorf("Custom headers test error: %v", err)
 			return
 		}
-		defer resp.Body.Close()
 
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("Response code = %v, want %v", resp.StatusCode, http.StatusOK)
+		if resp.Code != http.StatusOK {
+			t.Errorf("Response code = %v, want %v", resp.Code, http.StatusOK)
 		}
 	})
 }
@@ -1012,15 +947,14 @@ func TestResponseTypeConversion(t *testing.T) {
 		}
 
 		// Test NativeDo returns *http.Response
-		nativeResp, err := NativeDo(ctx, server.URL+"/json")
+		nativeResp, err := Do(ctx, server.URL+"/json")
 		if err != nil {
 			t.Errorf("NativeDo() error: %v", err)
 			return
 		}
-		defer nativeResp.Body.Close()
 
-		if nativeResp.StatusCode != http.StatusOK {
-			t.Errorf("NativeDo() status = %v, want %v", nativeResp.StatusCode, http.StatusOK)
+		if nativeResp.Code != http.StatusOK {
+			t.Errorf("NativeDo() status = %v, want %v", nativeResp.Code, http.StatusOK)
 		}
 	})
 }
@@ -1034,11 +968,10 @@ func BenchmarkNativeDo(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		resp, err := NativeDo(ctx, server.URL+"/json")
+		_, err := Do(ctx, server.URL+"/json")
 		if err != nil {
 			b.Fatalf("NativeDo() error: %v", err)
 		}
-		resp.Body.Close()
 	}
 }
 
@@ -1462,7 +1395,7 @@ func TestSugarFunction(t *testing.T) {
 		defer server.Close()
 
 		ctx := context.Background()
-		_, err := Sugar[TestUser](ctx, server.URL)
+		_, err := Sugar[TestUser](ctx, server.URL, DecoderXML())
 		if err != nil {
 			t.Logf("Sugar function executed with XML content (may fail): %v", err)
 		}
@@ -1478,7 +1411,7 @@ email: sugaryaml@test.com`))
 		defer server.Close()
 
 		ctx := context.Background()
-		_, err := Sugar[TestUser](ctx, server.URL)
+		_, err := Sugar[TestUser](ctx, server.URL, DecoderYAML())
 		if err != nil {
 			t.Logf("Sugar function executed with YAML content (may fail): %v", err)
 		}
@@ -1492,12 +1425,18 @@ email: sugaryaml@test.com`))
 		defer server.Close()
 
 		ctx := context.Background()
-		_, err := Sugar[TestUser](ctx, server.URL)
+		_, err := Sugar[TestUser](ctx, server.URL, DecoderText())
+		if err != nil {
+			t.Logf("Sugar function executed with unsupported content (may fail): %v", err)
+		}
+	})
+
+	t.Run("Sugar function with Do error", func(t *testing.T) {
+		ctx := context.Background()
+		_, err := Sugar[TestUser](ctx, "://invalid-url")
 
 		if err == nil {
 			t.Error("Sugar expected error for unsupported content type, got nil")
-		} else if !strings.Contains(err.Error(), "unsupported content type") {
-			t.Errorf("Sugar error = %v, want unsupported content type error", err)
 		}
 	})
 
