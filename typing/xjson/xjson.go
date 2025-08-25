@@ -4,27 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-
-	"github.com/bytedance/sonic"
 )
 
-var useSonic bool
-
-func UseSonic() {
-	useSonic = true
-}
-
 func marshal(v any) ([]byte, error) {
-	if useSonic {
-		return sonic.Marshal(v)
-	}
 	return json.Marshal(v)
 }
 
 func unmarshal(data []byte, v any) error {
-	if useSonic {
-		return sonic.Unmarshal(data, v)
-	}
 	return json.Unmarshal(data, v)
 }
 
