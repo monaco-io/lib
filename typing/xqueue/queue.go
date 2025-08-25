@@ -96,12 +96,12 @@ func (q *queue[T]) dequeue() {
 		}
 		return nil
 	})
-	q.eg.Go(func() error {
-		for data := range q.ch {
+	for data := range q.ch {
+		q.eg.Go(func() error {
 			if err := q.consumerHandler(data); err != nil {
 				q.errCh <- err
 			}
-		}
-		return nil
-	})
+			return nil
+		})
+	}
 }
