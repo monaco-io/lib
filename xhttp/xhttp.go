@@ -60,15 +60,15 @@ func Sugar[T any](ctx context.Context, url string, opts ...xopt.Option[Request])
 	switch response.Request.decoder {
 	case decoderJSON:
 		if err := xjson.Unmarshal(response.Body, &result); err != nil {
-			return nil, fmt.Errorf("Sugar.Decode: failed to decode JSON: %w", err)
+			return nil, fmt.Errorf("Sugar.Decode: failed to decode JSON: %w response.Body=%s", err, response.Body)
 		}
 	case decoderXML:
 		if err := xxml.Unmarshal(response.Body, &result); err != nil {
-			return nil, fmt.Errorf("Sugar.Decode: failed to decode XML: %w", err)
+			return nil, fmt.Errorf("Sugar.Decode: failed to decode XML: %w response.Body=%s", err, response.Body)
 		}
 	case decoderYAML:
 		if err := xyaml.Unmarshal(response.Body, &result); err != nil {
-			return nil, fmt.Errorf("Sugar.Decode: failed to decode YAML: %w", err)
+			return nil, fmt.Errorf("Sugar.Decode: failed to decode YAML: %w response.Body=%s", err, response.Body)
 		}
 	case decoderText:
 		switch any(result).(type) {
@@ -82,7 +82,7 @@ func Sugar[T any](ctx context.Context, url string, opts ...xopt.Option[Request])
 			result = any(response.Body).(T)
 		}
 	default:
-		return nil, fmt.Errorf("Sugar.Decode: unsupported type=%T, body=%s", result, response.Body)
+		return nil, fmt.Errorf("Sugar.Decode: unsupported type=%T, response.Body=%s", result, response.Body)
 	}
 	return &Response[T]{Body: result, Code: response.Code, Request: response.Request}, nil
 }
