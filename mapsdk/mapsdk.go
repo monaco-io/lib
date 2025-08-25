@@ -97,6 +97,7 @@ type Location struct {
 	Tags         []string       `json:"tags"`          // 房地产,写字楼
 	Point        Point          `json:"points"`
 	Detail       LocationDetail `json:"detail"`
+	Extra        string         `json:"extra"`
 }
 
 type LocationDetail struct {
