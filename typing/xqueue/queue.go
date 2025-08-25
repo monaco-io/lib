@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/monaco-io/lib/typing/xopt"
-	"golang.org/x/sync/errgroup"
 )
 
 type Queue[T any] interface {
@@ -37,15 +36,16 @@ func WithErrorHandler(fn func(err error)) xopt.Option[Config] {
 }
 
 type queue[T any] struct {
-	ch    chan T
-	errCh chan error
+	ch chan T
 
 	consumerHandler func(data T) error
 	errHandler      func(err error)
 
-	eg       errgroup.Group
 	maxProps int
 	once     sync.Once
+	closed   bool
+	mu       sync.RWMutex
+	wg       sync.WaitGroup
 }
 
 func New[T any](consumer func(data T) error, opts ...xopt.Option[Config]) Queue[T] {
@@ -58,23 +58,24 @@ func New[T any](consumer func(data T) error, opts ...xopt.Option[Config]) Queue[
 	xopt.Apply(opts, &cfg)
 	q := queue[T]{
 		ch:              make(chan T, defaultBufferSize),
-		errCh:           make(chan error),
 		consumerHandler: consumer,
 		errHandler:      cfg.errHandler,
 
 		maxProps: cfg.maxProps,
 	}
-	q.eg.SetLimit(q.maxProps)
 	return &q
-}
-
-func (q *queue[T]) SetMaxProps(n int) {
-	q.maxProps = n
 }
 
 func (q *queue[T]) Input(item ...T) {
 	q.once.Do(q.dequeue)
+
 	for _, v := range item {
+		q.mu.RLock()
+		if q.closed {
+			q.mu.RUnlock()
+			return
+		}
+		q.mu.RUnlock()
 		q.ch <- v
 	}
 }
@@ -84,24 +85,25 @@ func (q *queue[T]) Close() {
 }
 
 func (q *queue[T]) CloseSync() {
-	_ = q.eg.Wait()
-	close(q.ch)
-	close(q.errCh)
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if q.closed {
+		return
+	}
+	q.closed = true
+
+	close(q.ch) // 关闭数据通道
+	q.wg.Wait() // 等待错误处理goroutine完成
 }
 
 func (q *queue[T]) dequeue() {
-	q.eg.Go(func() error {
-		for err := range q.errCh {
-			q.errHandler(err)
-		}
-		return nil
-	})
-	for data := range q.ch {
-		q.eg.Go(func() error {
-			if err := q.consumerHandler(data); err != nil {
-				q.errCh <- err
+	for range q.maxProps {
+		q.wg.Go(func() {
+			for data := range q.ch {
+				if err := q.consumerHandler(data); err != nil {
+					q.errHandler(err)
+				}
 			}
-			return nil
 		})
 	}
 }
