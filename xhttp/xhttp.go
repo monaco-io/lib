@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 
 	"github.com/monaco-io/lib/typing/xjson"
 	"github.com/monaco-io/lib/typing/xopt"
@@ -29,12 +28,8 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 	if err != nil {
 		return nil, err
 	}
-	client := xrequest.Client
-	if client == nil {
-		client = http.DefaultClient
-	}
 
-	response, err := client.Do(xrequest.Request)
+	response, err := xrequest.Client.Do(xrequest.Request)
 	if err != nil {
 		return nil, err
 	}
