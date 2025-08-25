@@ -15,3 +15,10 @@ func Apply[T any](opts []Option[T], o *T) {
 		opt(o)
 	}
 }
+
+func Boolean(v ...bool) bool {
+	if len(v) > 0 {
+		return v[0]
+	}
+	return false
+}

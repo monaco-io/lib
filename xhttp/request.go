@@ -129,6 +129,26 @@ func BasicAuth(username, password string) xopt.Option[Request] {
 	}
 }
 
+func Header(key, value string, replace ...bool) xopt.Option[Request] {
+	return func(request *Request) {
+		if xopt.Boolean(replace...) {
+			request.Header.Set(key, value)
+		} else {
+			request.Header.Add(key, value)
+		}
+	}
+}
+
+func Headers(headers http.Header, replace ...bool) xopt.Option[Request] {
+	return func(request *Request) {
+		for key, values := range headers {
+			for _, value := range values {
+				Header(key, value, replace...)(request)
+			}
+		}
+	}
+}
+
 func Transport(transport http.RoundTripper) xopt.Option[Request] {
 	return func(request *Request) {
 		request.Transport = transport
