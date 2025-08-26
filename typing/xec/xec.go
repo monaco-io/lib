@@ -20,7 +20,11 @@ type Error struct {
 }
 
 func (e Error) Error() string {
-	return fmt.Sprintf("[%d] %s", e.Code, e.Message)
+	var causeMsg string
+	if e.cause != nil {
+		causeMsg = fmt.Sprintf(" (caused by: %s)", e.cause.Error())
+	}
+	return fmt.Sprintf("[%d] %s%s", e.Code, e.Message, causeMsg)
 }
 
 func (e Error) Wrap(err error) Error {
