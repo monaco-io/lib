@@ -4,9 +4,10 @@ import (
 	"github.com/samber/lo"
 )
 
-type Map[K comparable, V any] map[K]V
-
-type MapX Map[any, any]
+type (
+	Map[K comparable, V any] map[K]V
+	MapX                     Map[string, any]
+)
 
 func (m Map[K, V]) Get(key K) (V, bool) {
 	value, exists := m[key]
