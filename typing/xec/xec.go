@@ -19,6 +19,8 @@ type Error struct {
 	cause error
 }
 
+var _ error = Error{}
+
 func (e Error) Error() string {
 	var causeMsg string
 	if e.cause != nil {
