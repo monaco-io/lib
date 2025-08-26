@@ -6,6 +6,8 @@ import (
 
 type Map[K comparable, V any] map[K]V
 
+type MapX Map[any, any]
+
 func (m Map[K, V]) Get(key K) (V, bool) {
 	value, exists := m[key]
 	return value, exists
