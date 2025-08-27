@@ -56,7 +56,7 @@ func TestGzipEncode(t *testing.T) {
 			}
 			if !tt.wantErr {
 				// 验证压缩结果可以解压
-				decoded, err := GzipDecode(got)
+				decoded, err := GZipDecode(got)
 				if err != nil {
 					t.Errorf("Failed to decode compressed data: %v", err)
 					return
@@ -128,7 +128,7 @@ func TestGzipEncodeWithLevel(t *testing.T) {
 			}
 			if !tt.wantErr {
 				// 验证可以正确解压
-				decoded, err := GzipDecode(got)
+				decoded, err := GZipDecode(got)
 				if err != nil {
 					t.Errorf("Failed to decode: %v", err)
 					return
@@ -188,7 +188,7 @@ func TestGzipDecode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GzipDecode(tt.input)
+			got, err := GZipDecode(tt.input)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GzipDecode() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -428,7 +428,7 @@ func TestGzipRoundTrip(t *testing.T) {
 			}
 
 			// 解压
-			decompressed, err := GzipDecode(compressed)
+			decompressed, err := GZipDecode(compressed)
 			if err != nil {
 				t.Fatalf("GzipDecode() error = %v", err)
 			}
@@ -472,7 +472,7 @@ func TestGzipCompressionLevels(t *testing.T) {
 		results[level] = len(compressed)
 
 		// 验证可以正确解压
-		decompressed, err := GzipDecode(compressed)
+		decompressed, err := GZipDecode(compressed)
 		if err != nil {
 			t.Errorf("GzipDecode failed for level %d: %v", level, err)
 			continue
@@ -528,7 +528,7 @@ func BenchmarkGzipDecode(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := GzipDecode(compressed)
+		_, err := GZipDecode(compressed)
 		if err != nil {
 			b.Fatal(err)
 		}

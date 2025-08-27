@@ -52,8 +52,8 @@ func GZipEncode(input []byte, level ...int) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// GzipDecode 解压 gzip 格式的数据
-func GzipDecode(input []byte) ([]byte, error) {
+// GZipDecode 解压 gzip 格式的数据
+func GZipDecode(input []byte) ([]byte, error) {
 	if input == nil {
 		return nil, fmt.Errorf("input cannot be nil")
 	}
@@ -90,7 +90,7 @@ func GzipEncodeString(input string, level ...int) ([]byte, error) {
 
 // GzipDecodeString 解压 gzip 数据到字符串
 func GzipDecodeString(input []byte) (string, error) {
-	data, err := GzipDecode(input)
+	data, err := GZipDecode(input)
 	if err != nil {
 		return "", err
 	}
