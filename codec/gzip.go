@@ -1,4 +1,4 @@
-package xfile
+package codec
 
 import (
 	"bytes"
@@ -7,9 +7,9 @@ import (
 	"io"
 )
 
-// Encode 压缩数据到 gzip 格式
+// GZipEncode 压缩数据到 gzip 格式
 // 支持可选的压缩级别配置
-func Encode(input []byte, level ...int) ([]byte, error) {
+func GZipEncode(input []byte, level ...int) ([]byte, error) {
 	if input == nil {
 		return nil, fmt.Errorf("input cannot be nil")
 	}
@@ -52,8 +52,8 @@ func Encode(input []byte, level ...int) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Decode 解压 gzip 格式的数据
-func Decode(input []byte) ([]byte, error) {
+// GzipDecode 解压 gzip 格式的数据
+func GzipDecode(input []byte) ([]byte, error) {
 	if input == nil {
 		return nil, fmt.Errorf("input cannot be nil")
 	}
@@ -85,12 +85,12 @@ func Decode(input []byte) ([]byte, error) {
 
 // GzipEncodeString 压缩字符串到 gzip 格式
 func GzipEncodeString(input string, level ...int) ([]byte, error) {
-	return Encode([]byte(input), level...)
+	return GZipEncode([]byte(input), level...)
 }
 
 // GzipDecodeString 解压 gzip 数据到字符串
 func GzipDecodeString(input []byte) (string, error) {
-	data, err := Decode(input)
+	data, err := GzipDecode(input)
 	if err != nil {
 		return "", err
 	}
