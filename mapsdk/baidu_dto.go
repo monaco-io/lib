@@ -177,7 +177,8 @@ func (d *baiduSearchResponse3) ResponseDTO(uri string) *Response[SearchPlaceData
 				Label:          strings.Split(item.DetailInfo.Label, ";"),
 				Photos:         item.DetailInfo.Photos,
 			},
-			Extra: xjson.MarshalStringX(typing.MapX{"status": item.Status, "type": item.DetailInfo.Type}),
+			Extra: xjson.MarshalStringX(
+				typing.MapX{"status": item.Status, "type": item.DetailInfo.Type, "result_type": d.ResultType}),
 		})
 	}
 	return &Response[SearchPlaceData]{
