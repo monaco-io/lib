@@ -1,6 +1,9 @@
 package typing
 
 import (
+	"fmt"
+	"net/url"
+
 	"github.com/samber/lo"
 )
 
@@ -28,4 +31,28 @@ func (m Map[K, V]) HasKey(key K) bool {
 
 func (m Map[K, V]) Values() []V {
 	return lo.Values(m)
+}
+
+func (m Map[K, V]) URLValues() url.Values {
+	values := url.Values{}
+	for k, v := range m {
+		values.Add(fmt.Sprintf("%v", k), fmt.Sprintf("%v", v))
+	}
+	return values
+}
+
+func (m Map[K, V]) URLEncode() string {
+	return m.URLValues().Encode()
+}
+
+func (m MapX) URLValues() url.Values {
+	values := url.Values{}
+	for k, v := range m {
+		values.Add(k, fmt.Sprintf("%v", v))
+	}
+	return values
+}
+
+func (m MapX) URLEncode() string {
+	return m.URLValues().Encode()
 }
