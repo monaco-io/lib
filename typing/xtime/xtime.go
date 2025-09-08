@@ -8,6 +8,15 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+const (
+	Second = 1 * time.Second
+	Minute = 1 * time.Minute
+	Hour   = 1 * time.Hour
+	Day    = 24 * time.Hour
+	Month  = 30 * Day
+	Year   = 365 * Day
+)
+
 type Integer constraints.Integer
 
 var hour8 = (time.Second * 60 * 60 * 8).Seconds()
