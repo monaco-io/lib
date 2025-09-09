@@ -25,7 +25,7 @@ type lru[K comparable, V any] struct {
 	cb  func(context.Context, K) (V, error)
 
 	data *x.LinkedList[*entry[K, V]]
-	hash *x.SyncMap[K, *x.Element[*entry[K, V]]]
+	hash *x.SyncMap[K, *x.LinkedListElement[*entry[K, V]]]
 	lock sync.Locker
 }
 
@@ -38,7 +38,7 @@ type entry[K comparable, V any] struct {
 // Set adds a value to the cache.
 func (c *lru[K, V]) Set(key K, value V) {
 	if c.hash == nil {
-		c.hash = x.NewSyncMap[K, *x.Element[*entry[K, V]]]()
+		c.hash = x.NewSyncMap[K, *x.LinkedListElement[*entry[K, V]]]()
 		c.data = x.NewLinkedList[*entry[K, V]]()
 	}
 	if ee, ok := c.hash.Load(key); ok {
@@ -90,7 +90,7 @@ func (c *lru[K, V]) Len() int {
 // Clear purges all stored items from the cache.
 func (c *lru[K, V]) Flush() {
 	c.data = x.NewLinkedList[*entry[K, V]]()
-	c.hash = x.NewSyncMap[K, *x.Element[*entry[K, V]]]()
+	c.hash = x.NewSyncMap[K, *x.LinkedListElement[*entry[K, V]]]()
 }
 
 // Clear purges all stored items from the cache.

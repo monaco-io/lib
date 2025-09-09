@@ -69,7 +69,7 @@ func New[K comparable, V any](opts ...xopt.Option[config[K, V]]) ICache[K, V] {
 		cb:   cfg.sourceFunc,
 
 		data: x.NewLinkedList[*entry[K, V]](),
-		hash: x.NewSyncMap[K, *x.Element[*entry[K, V]]](),
+		hash: x.NewSyncMap[K, *x.LinkedListElement[*entry[K, V]]](),
 		lock: new(sync.Mutex),
 	}
 	return &c

@@ -6,20 +6,20 @@ import (
 	typing "github.com/monaco-io/lib/typing"
 )
 
-func (c *lru[K, V]) moveToFront(ele *typing.Element[*entry[K, V]]) {
+func (c *lru[K, V]) moveToFront(ele *typing.LinkedListElement[*entry[K, V]]) {
 	c.lock.Lock()
 	c.data.MoveToFront(ele)
 	c.lock.Unlock()
 }
 
-func (c *lru[K, V]) pushFront(v *entry[K, V]) (ele *typing.Element[*entry[K, V]]) {
+func (c *lru[K, V]) pushFront(v *entry[K, V]) (ele *typing.LinkedListElement[*entry[K, V]]) {
 	c.lock.Lock()
 	ele = c.data.PushFront(v)
 	c.lock.Unlock()
 	return
 }
 
-func (c *lru[K, V]) remove(e *typing.Element[*entry[K, V]]) {
+func (c *lru[K, V]) remove(e *typing.LinkedListElement[*entry[K, V]]) {
 	c.lock.Lock()
 	c.data.Remove(e)
 	c.lock.Unlock()
