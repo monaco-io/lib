@@ -23,6 +23,9 @@ type Response[T any] struct {
 	*Request `json:"-" xml:"-" yaml:"-"`
 }
 
+func (r *Response[T]) PrettyPrintln() {
+}
+
 func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
 	xrequest, err := build(ctx, url, opts...)
 	if err != nil {

@@ -23,6 +23,20 @@ func MarshalX(v any) []byte {
 	return b
 }
 
+func MarshalIndent(v any, prefix, indent string) ([]byte, error) {
+	return json.MarshalIndent(v, prefix, indent)
+}
+
+func MarshalIndentX(v any, prefix, indent string) []byte {
+	b, _ := json.MarshalIndent(v, prefix, indent)
+	return b
+}
+
+func MarshalIndentStringX(v any, prefix, indent string) string {
+	b, _ := json.MarshalIndent(v, prefix, indent)
+	return string(b)
+}
+
 func MarshalStringX(v any) string {
 	b, _ := marshal(v)
 	return string(b)
