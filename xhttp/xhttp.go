@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 
-	. "github.com/monaco-io/lib/typing"
 	"github.com/monaco-io/lib/typing/xjson"
 	"github.com/monaco-io/lib/typing/xopt"
 	"github.com/monaco-io/lib/typing/xxml"
@@ -25,7 +24,7 @@ type Response[T any] struct {
 }
 
 func (r *Response[T]) PrettyString() string {
-	return Condition(r != nil, xjson.MarshalIndentStringX(r.Body, "", "\t"), "null")
+	return xjson.MarshalIndentStringX(r, "", "\t")
 }
 
 func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
