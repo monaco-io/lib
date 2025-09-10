@@ -23,7 +23,8 @@ type Response[T any] struct {
 	*Request `json:"-" xml:"-" yaml:"-"`
 }
 
-func (r *Response[T]) PrettyPrintln() {
+func (r *Response[T]) PrettyString() string {
+	return xjson.MarshalIndentStringX(r.Body, "", "\t")
 }
 
 func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
