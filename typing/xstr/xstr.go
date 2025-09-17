@@ -61,12 +61,26 @@ func IsNotBlank(s string) bool {
 	return strings.TrimSpace(s) != EMPTY
 }
 
-// DefaultIfEmpty 如果字符串为空则返回默认值
-func DefaultIfEmpty(s, defaultValue string) string {
+// 如果字符串为空则返回默认值
+func DefaultIfEmpty(s string, defaultValue ...string) string {
 	if IsEmpty(s) {
-		return defaultValue
+		if len(defaultValue) > 0 {
+			return defaultValue[0]
+		}
+		return EMPTY
 	}
 	return s
+}
+
+// 如果字符串为空则返回默认值
+func DefaultIfEmptyPtr(s *string, defaultValue ...string) string {
+	if s == nil || IsEmpty(*s) {
+		if len(defaultValue) > 0 {
+			return defaultValue[0]
+		}
+		return EMPTY
+	}
+	return *s
 }
 
 // DefaultIfBlank 如果字符串为空白则返回默认值
@@ -236,6 +250,18 @@ func ToInteger[T constraints.Integer](s string) (T, error) {
 	return T(val), err
 }
 
+// ToInt 字符串转换为整数
+func ToIntegerX[T constraints.Integer](s string) T {
+	val, _ := strconv.Atoi(strings.TrimSpace(s))
+	return T(val)
+}
+
+// ToInt64 字符串转换为64位整数
+func ToFloatX[T constraints.Float](s string) T {
+	val, _ := strconv.ParseFloat(strings.TrimSpace(s), 64)
+	return T(val)
+}
+
 // ToInt64 字符串转换为64位整数
 func ToFloat[T constraints.Float](s string) (T, error) {
 	val, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
@@ -245,6 +271,12 @@ func ToFloat[T constraints.Float](s string) (T, error) {
 // ToBool 字符串转换为布尔值
 func ToBool(s string) (bool, error) {
 	return strconv.ParseBool(strings.TrimSpace(s))
+}
+
+// ToBoolX 字符串转换为布尔值
+func ToBoolX(s string) bool {
+	val, _ := strconv.ParseBool(strings.TrimSpace(s))
+	return val
 }
 
 // FromInteger 整数转换为字符串
