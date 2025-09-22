@@ -30,6 +30,7 @@ func (r *Response[T]) PrettyString() string {
 }
 
 func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
+	ctx = withTraceContext(ctx)
 	xrequest, err := build(ctx, url, opts...)
 	if err != nil {
 		return nil, err

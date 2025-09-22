@@ -211,7 +211,7 @@ func CheckRedirect(f func(req *http.Request, via []*http.Request) error) xopt.Op
 
 func build(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Request, error) {
 	request, err := http.NewRequestWithContext(
-		withTraceContext(ctx),
+		ctx,
 		http.MethodGet, url, nil,
 	)
 	if err != nil {
