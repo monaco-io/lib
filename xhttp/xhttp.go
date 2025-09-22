@@ -96,5 +96,5 @@ func Sugar[T any](ctx context.Context, url string, opts ...xopt.Option[Request])
 	default:
 		return nil, fmt.Errorf("Sugar.Decode: unsupported type=%T, response.Body=%s", result, response.Body)
 	}
-	return &Response[T]{Body: result, Code: response.Code, Request: response.Request}, nil
+	return &Response[T]{Body: result, Code: response.Code, Request: response.Request, TraceResult: response.TraceResult}, nil
 }
