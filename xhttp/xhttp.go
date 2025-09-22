@@ -44,6 +44,7 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 	tr, ok := ctx.Value(contextTraceResultKey{}).(*TraceResult)
 	if ok && tr != nil {
 		tr.TotalDuration = Counter[time.Duration]{Value: time.Since(tr.startTime)}
+		defer tr.FormatCounter()
 	}
 	// trace.
 	if response == nil {
