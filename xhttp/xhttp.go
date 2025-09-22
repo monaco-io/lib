@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/monaco-io/lib/typing/xjson"
 	"github.com/monaco-io/lib/typing/xopt"
@@ -20,7 +21,8 @@ type Response[T any] struct {
 	Body T   `json:"body" xml:"body" yaml:"body"`
 	Code int `json:"code" xml:"code" yaml:"code"`
 
-	*Request `json:"-" xml:"-" yaml:"-"`
+	*Request     `json:"-" xml:"-" yaml:"-"`
+	*TraceResult `json:"trace_result" xml:"trace_result" yaml:"trace_result"`
 }
 
 func (r *Response[T]) PrettyString() string {
@@ -32,11 +34,15 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 	if err != nil {
 		return nil, err
 	}
-
-	response, err := xrequest.Client.Do(xrequest.Request)
+	response, err := xrequest.Do(xrequest.Request)
 	if err != nil {
 		return nil, err
 	}
+	tr, ok := ctx.Value(contextTraceResultKey{}).(*TraceResult)
+	if ok && tr != nil {
+		tr.TotalDuration = time.Since(tr.startTime)
+	}
+	// trace.
 	if response == nil {
 		return nil, errors.New("response is nil")
 	}
@@ -45,13 +51,14 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 		return nil, err
 	}
 	if response.Body != nil {
-		defer response.Body.Close()
+		defer func() { _ = response.Body.Close() }()
 	}
 
 	return &Response[[]byte]{
-		Body:    body,
-		Code:    response.StatusCode,
-		Request: xrequest,
+		Body:        body,
+		Code:        response.StatusCode,
+		Request:     xrequest,
+		TraceResult: tr,
 	}, nil
 }
 
@@ -61,7 +68,7 @@ func Sugar[T any](ctx context.Context, url string, opts ...xopt.Option[Request])
 		return nil, err
 	}
 	var result T
-	switch response.Request.decoder {
+	switch response.decoder {
 	case decoderJSON:
 		if err := xjson.Unmarshal(response.Body, &result); err != nil {
 			return nil, fmt.Errorf("Sugar.Decode: failed to decode JSON: %w response.Body=%s", err, response.Body)

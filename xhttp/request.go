@@ -12,7 +12,6 @@ import (
 
 	"github.com/monaco-io/lib/typing/xjson"
 	"github.com/monaco-io/lib/typing/xopt"
-	"github.com/monaco-io/lib/typing/xstr"
 	"github.com/monaco-io/lib/typing/xxml"
 	"github.com/monaco-io/lib/typing/xyaml"
 )
@@ -211,13 +210,10 @@ func CheckRedirect(f func(req *http.Request, via []*http.Request) error) xopt.Op
 }
 
 func build(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Request, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if _, ok := ctx.Value(requestID).(string); !ok {
-		ctx = context.WithValue(ctx, requestID, xstr.UUIDX())
-	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	request, err := http.NewRequestWithContext(
+		withTraceContext(ctx),
+		http.MethodGet, url, nil,
+	)
 	if err != nil {
 		return nil, err
 	}
