@@ -3,8 +3,6 @@ package xhttp
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
-	"log"
 	"net/http/httptrace"
 	"time"
 
@@ -60,8 +58,6 @@ func withTraceContext(ctx context.Context) context.Context {
 		// 连接完成
 		ConnectDone: func(network, addr string, err error) {
 			if err != nil {
-				log.Printf("连接失败: %v", err)
-				tr.Error = fmt.Sprintf("连接失败: %v", err)
 				return
 			}
 			tr.ConnectDuration = time.Since(tr.connectStart)
