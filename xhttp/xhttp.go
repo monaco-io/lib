@@ -7,6 +7,8 @@ import (
 	"io"
 	"time"
 
+	. "github.com/monaco-io/lib/typing"
+
 	"github.com/monaco-io/lib/typing/xjson"
 	"github.com/monaco-io/lib/typing/xopt"
 	"github.com/monaco-io/lib/typing/xxml"
@@ -41,7 +43,7 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 	}
 	tr, ok := ctx.Value(contextTraceResultKey{}).(*TraceResult)
 	if ok && tr != nil {
-		tr.TotalDuration = time.Since(tr.startTime)
+		tr.TotalDuration = Counter[time.Duration]{Value: time.Since(tr.startTime)}
 	}
 	// trace.
 	if response == nil {
