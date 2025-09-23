@@ -52,16 +52,31 @@ func (b *baidu) NativeDo(uri string, params ...KV) (*NativeDoResponse, error) {
 
 // https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-placeapiV3/interfaceDocumentV3
 func (b *baidu) SearchRegion(params SearchRegionParams, opts ...KV) (*Response[SearchPlaceData], error) {
-	opts = append(opts, NewKV("query", params.Keyword))
-	opts = append(opts, NewKV("region", params.Region))
-	if params.Lat != 0 && params.Lng != 0 {
-		opts = append(opts, NewKV("center", fmt.Sprintf("%f,%f", params.Lat, params.Lng)))
+	if params.Region != "" {
+		opts = append(opts, NewKV("query", params.Keyword))
+		opts = append(opts, NewKV("region", params.Region))
+		if params.Lat != 0 && params.Lng != 0 {
+			opts = append(opts, NewKV("center", fmt.Sprintf("%f,%f", params.Lat, params.Lng)))
+		}
+		body, err := b.NativeDo("/place/v3/region", opts...)
+		if err != nil {
+			return nil, err
+		}
+		return unmarshal[*baiduSearchResponse3](body)
+	} else { // 无区域时，使用附近检索
+		opts = append(opts, NewKV("query", params.Keyword))
+		// opts = append(opts, NewKV("region", params.Region))
+		if params.Lat != 0 && params.Lng != 0 {
+			opts = append(opts, NewKV("location", fmt.Sprintf("%f,%f", params.Lat, params.Lng)))
+		}
+		//query=银行&location=39.915,116.404&radius=2000&output=json&ak=您的密钥
+
+		body, err := b.NativeDo("/place/v2/search", opts...)
+		if err != nil {
+			return nil, err
+		}
+		return unmarshal[*baiduSearchResponse3](body)
 	}
-	body, err := b.NativeDo("/place/v3/region", opts...)
-	if err != nil {
-		return nil, err
-	}
-	return unmarshal[*baiduSearchResponse3](body)
 }
 
 func (b *baidu) GetPlaceDetail(params GetPlaceDetailParams, opts ...KV) (*Response[[]PlaceDetailData], error) {

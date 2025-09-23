@@ -26,8 +26,8 @@ func Test_baidu_SearchRegion(t *testing.T) {
 			args: args{
 				params: SearchRegionParams{
 					Keyword: "洗浴",
-					Region:  "上海",
-					Point:   Point{Lat: 31.2304, Lng: 121.4737}, // 上海市中心点
+					// Region:  "上海",
+					Point: Point{Lat: 31.2304, Lng: 121.4737}, // 上海市中心点
 				},
 				opts: []KV{NewKV("scope", "2")},
 			},
