@@ -78,3 +78,11 @@ func MarshalReader[T any](data T) (io.Reader, error) {
 func MarshalReaderX[T any](data T) io.Reader {
 	return bytes.NewReader(MarshalX(data))
 }
+
+func TransformT[Target, From any](from From) (*Target, error) {
+	b, err := marshal(from)
+	if err != nil {
+		return nil, err
+	}
+	return UnmarshalT[*Target](b)
+}
