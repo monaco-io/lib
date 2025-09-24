@@ -9,7 +9,7 @@ type SyncMap[K comparable, V any] struct {
 }
 
 func NewSyncMap[K comparable, V any]() *SyncMap[K, V] {
-	return &SyncMap[K, V]{m: &sync.Map{}}
+	return &SyncMap[K, V]{m: new(sync.Map)}
 }
 
 func (m *SyncMap[K, V]) Load(key K) (value V, ok bool) {
