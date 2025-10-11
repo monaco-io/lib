@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+
+	"github.com/monaco-io/lib/typing/xopt"
 )
 
 func marshal(v any) ([]byte, error) {
@@ -23,17 +25,45 @@ func MarshalX(v any) []byte {
 	return b
 }
 
-func MarshalIndent(v any, prefix, indent string) ([]byte, error) {
-	return json.MarshalIndent(v, prefix, indent)
+func MarshalIndent(v any, opts ...xopt.Option[marshalIndentOption]) ([]byte, error) {
+	var opt marshalIndentOption
+	for _, o := range opts {
+		o(&opt)
+	}
+	return json.MarshalIndent(v, opt.prefix, opt.indent)
 }
 
-func MarshalIndentX(v any, prefix, indent string) []byte {
-	b, _ := json.MarshalIndent(v, prefix, indent)
+type marshalIndentOption struct {
+	prefix string
+	indent string
+}
+
+func WithIndentPrefix(prefix string) xopt.Option[marshalIndentOption] {
+	return func(o *marshalIndentOption) {
+		o.prefix = prefix
+	}
+}
+func WithIndentString(indent string) xopt.Option[marshalIndentOption] {
+	return func(o *marshalIndentOption) {
+		o.indent = indent
+	}
+}
+
+func MarshalIndentX(v any, opts ...xopt.Option[marshalIndentOption]) []byte {
+	var opt marshalIndentOption
+	for _, o := range opts {
+		o(&opt)
+	}
+	b, _ := json.MarshalIndent(v, opt.prefix, opt.indent)
 	return b
 }
 
-func MarshalIndentStringX(v any, prefix, indent string) string {
-	b, _ := json.MarshalIndent(v, prefix, indent)
+func MarshalIndentStringX(v any, opts ...xopt.Option[marshalIndentOption]) string {
+	var opt marshalIndentOption
+	for _, o := range opts {
+		o(&opt)
+	}
+	b, _ := json.MarshalIndent(v, opt.prefix, opt.indent)
 	return string(b)
 }
 
