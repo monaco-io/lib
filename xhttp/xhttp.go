@@ -28,7 +28,7 @@ type Response[T any] struct {
 }
 
 func (r *Response[T]) PrettyString() string {
-	return xjson.MarshalIndentStringX(r, xjson.WithIndentPrefix("\t"))
+	return xjson.MarshalIndentStringX(r, xjson.WithIndentString("\t"))
 }
 
 func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Response[[]byte], error) {
