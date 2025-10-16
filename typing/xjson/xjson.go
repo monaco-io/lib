@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/monaco-io/lib/typing/xopt"
+	"github.com/monaco-io/lib/typing/xstr"
 )
 
 func marshal(v any) ([]byte, error) {
@@ -60,6 +61,7 @@ func MarshalIndentX(v any, opts ...xopt.Option[marshalIndentOption]) []byte {
 
 func MarshalIndentStringX(v any, opts ...xopt.Option[marshalIndentOption]) string {
 	var opt marshalIndentOption
+	opt.indent = xstr.TAB
 	for _, o := range opts {
 		o(&opt)
 	}
