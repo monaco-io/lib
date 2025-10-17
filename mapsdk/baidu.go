@@ -105,3 +105,14 @@ func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV
 	}
 	return unmarshal[*baiduReverseGeocodingResponse3](body)
 }
+
+func (b *baidu) GetTransitRoute(params GetTransitRouteParams, opts ...KV) (*Response[TransitRouteData], error) {
+	opts = append(opts, NewKV("origin", fmt.Sprintf("%f,%f", params.Origin.Lat, params.Origin.Lng)))
+	opts = append(opts, NewKV("destination", fmt.Sprintf("%f,%f", params.Destination.Lat, params.Destination.Lng)))
+	opts = append(opts, NewKV("steps_info", "1"))
+	body, err := b.NativeDo("/direction/v2/transit", opts...)
+	if err != nil {
+		return nil, err
+	}
+	return unmarshal[*baiduTransitRouteDataResponse](body)
+}

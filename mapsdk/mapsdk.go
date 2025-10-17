@@ -56,6 +56,10 @@ type ISDK interface {
 	// baidu https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-geocoding-abroad-base
 	GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV) (*Response[ReverseGeocodingData], error)
 
+	// 公交路线规划
+	// baidu https://lbs.baidu.com/faq/api?title=webapi/webservice-direction/transit
+	GetTransitRoute(params GetTransitRouteParams, opts ...KV) (*Response[TransitRouteData], error)
+
 	NativeDo(uri string, kv ...KV) (*NativeDoResponse, error)
 }
 
@@ -142,6 +146,8 @@ type ReverseGeocodingData struct {
 	Extra    string     `json:"extra"`
 }
 
+type TransitRouteData struct{}
+
 type (
 	GetPlaceDetailParams struct {
 		IDs []string
@@ -155,6 +161,10 @@ type (
 		Keyword string // 检索关键字，必填
 		Region  string // 检索区域，必填
 		Point          // 圆形区域检索中心点，必填 格式：lat,lng
+	}
+	GetTransitRouteParams struct {
+		Origin      Point // 出发点坐标，必填 格式：lat,lng
+		Destination Point // 目的地坐标，必填 格式：lat,lng
 	}
 )
 

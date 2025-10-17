@@ -138,7 +138,27 @@ type (
 		Street       string `json:"street"`
 		StreetNumber string `json:"street_number"`
 	}
+	baiduTransitRouteDataResponse struct {
+		Status  int             `json:"status"`
+		Message string          `json:"message"`
+		Result  json.RawMessage `json:"result"`
+	}
 )
+
+func (v *baiduTransitRouteDataResponse) ToJSON() json.RawMessage {
+	b, _ := json.Marshal(v)
+	return b
+}
+
+func (d *baiduTransitRouteDataResponse) ResponseDTO(uri string) *Response[TransitRouteData] {
+	return &Response[TransitRouteData]{
+		Source:   Baidu,
+		Status:   xec.New(d.Status, d.Message),
+		MetaURI:  uri,
+		MetaData: d.ToJSON(),
+		Data:     TransitRouteData{},
+	}
+}
 
 func (d *BaiduResponse) ResponseDTO(uri string) *Response[*BaiduResponse] {
 	return &Response[*BaiduResponse]{
