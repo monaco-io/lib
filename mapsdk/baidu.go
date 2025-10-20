@@ -98,7 +98,7 @@ func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV
 	if len(params.PoiTypes) > 0 {
 		opts = append(opts, NewKV("poi_types", strings.Join(params.PoiTypes, "|")))
 	}
-	opts = append(opts, NewKV("radius", xstr.DefaultIfBlank("1000", fmt.Sprintf("%d", params.Radius)))) // 确保开启poi扩展
+	opts = append(opts, NewKV("radius", xstr.DefaultIfBlank(fmt.Sprintf("%d", params.Radius), "1000"))) // 确保开启poi扩展
 	body, err := b.NativeDo("/reverse_geocoding/v3", opts...)
 	if err != nil {
 		return nil, err
