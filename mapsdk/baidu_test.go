@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	. "github.com/monaco-io/lib/typing"
 	"github.com/monaco-io/lib/typing/xjson"
 )
 
@@ -13,7 +14,7 @@ func Test_baidu_SearchRegion(t *testing.T) {
 	type fields struct{}
 	type args struct {
 		params SearchRegionParams
-		opts   []KV
+		opts   []KV[string, string]
 	}
 	tests := []struct {
 		name    string
@@ -31,7 +32,7 @@ func Test_baidu_SearchRegion(t *testing.T) {
 					// Region:  "上海",
 					Point: Point{Lat: 31.2304, Lng: 121.4737}, // 上海市中心点
 				},
-				opts: []KV{NewKV("scope", "2")},
+				opts: []KV[string, string]{NewKV("scope", "2")},
 			},
 			wantErr: false,
 		},
@@ -52,7 +53,7 @@ func Test_baidu_GetPlaceDetail(t *testing.T) {
 	type fields struct{}
 	type args struct {
 		params GetPlaceDetailParams
-		opts   []KV
+		opts   []KV[string, string]
 	}
 	tests := []struct {
 		name    string
@@ -68,7 +69,7 @@ func Test_baidu_GetPlaceDetail(t *testing.T) {
 				params: GetPlaceDetailParams{
 					IDs: []string{"8ee4560cf91d160e6cc02cd7", "435d7aea036e54355abbbcc8"},
 				},
-				opts: []KV{NewKV("scope", "2")},
+				opts: []KV[string, string]{NewKV("scope", "2")},
 			},
 			wantErr: false,
 		},
@@ -89,7 +90,7 @@ func Test_baidu_GetReverseGeocoding(t *testing.T) {
 	type fields struct{}
 	type args struct {
 		params GetReverseGeocodingParams
-		opts   []KV
+		opts   []KV[string, string]
 	}
 	tests := []struct {
 		name    string
@@ -103,10 +104,9 @@ func Test_baidu_GetReverseGeocoding(t *testing.T) {
 			fields: fields{},
 			args: args{
 				params: GetReverseGeocodingParams{
-					Point:  Point{Lat: 31.2304, Lng: 121.4737}, // 上海市中心点
-					Radius: 2000,
+					Point: Point{Lat: 31.2304, Lng: 121.4737}, // 上海市中心点
 				},
-				opts: []KV{NewKV("scope", "2"), NewKV("extensions_poi", "1"), NewKV("entire_poi", "1")},
+				opts: []KV[string, string]{NewKV("scope", "2"), NewKV("extensions_poi", "1"), NewKV("entire_poi", "1")},
 			},
 			wantErr: false,
 		},
@@ -127,7 +127,7 @@ func Test_baidu_GetTransitRoute(t *testing.T) {
 	type fields struct{}
 	type args struct {
 		params GetTransitRouteParams
-		opts   []KV
+		opts   []KV[string, string]
 	}
 	tests := []struct {
 		name    string
@@ -141,11 +141,11 @@ func Test_baidu_GetTransitRoute(t *testing.T) {
 			fields: fields{},
 			args: args{
 				params: GetTransitRouteParams{
-					Origin:      Point{Lat: 40.056878, Lng: 116.30815},
-					Destination: Point{Lat: 39.909263, Lng: 116.39269},
+					From: Point{Lat: 40.056878, Lng: 116.30815},
+					To:   Point{Lat: 39.909263, Lng: 116.39269},
 				},
 				// origin=40.056878,116.30815&destination=39.909263,116.39269
-				opts: []KV{NewKV("scope", "2"), NewKV("extensions_poi", "1"), NewKV("entire_poi", "1")},
+				opts: []KV[string, string]{NewKV("scope", "2"), NewKV("extensions_poi", "1"), NewKV("entire_poi", "1")},
 			},
 			wantErr: false,
 		},

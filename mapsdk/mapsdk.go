@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/monaco-io/lib/typing"
 	"github.com/monaco-io/lib/typing/xec"
 	"github.com/monaco-io/lib/typing/xjson"
 )
@@ -46,21 +47,21 @@ const (
 type ISDK interface {
 	// 地点检索
 	// baidu 地点检索3.0 https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-placeapiV3/interfaceDocumentV3
-	SearchRegion(params SearchRegionParams, opts ...KV) (*Response[SearchPlaceData], error)
+	SearchRegion(params SearchRegionParams, opts ...typing.KV[string, string]) (*Response[SearchPlaceData], error)
 
 	// 地点详情检索
 	// baidu https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-placeapi/detail
-	GetPlaceDetail(params GetPlaceDetailParams, opts ...KV) (*Response[[]PlaceDetailData], error)
+	GetPlaceDetail(params GetPlaceDetailParams, opts ...typing.KV[string, string]) (*Response[[]PlaceDetailData], error)
 
 	// 全球逆地理编码
 	// baidu https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-geocoding-abroad-base
-	GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV) (*Response[ReverseGeocodingData], error)
+	GetReverseGeocoding(params GetReverseGeocodingParams, opts ...typing.KV[string, string]) (*Response[ReverseGeocodingData], error)
 
 	// 公交路线规划
 	// baidu https://lbs.baidu.com/faq/api?title=webapi/webservice-direction/transit
-	GetTransitRoute(params GetTransitRouteParams, opts ...KV) (*Response[TransitRouteData], error)
+	GetTransitRoute(params GetTransitRouteParams, opts ...typing.KV[string, string]) (*Response[TransitRouteData], error)
 
-	NativeDo(uri string, kv ...KV) (*NativeDoResponse, error)
+	NativeDo(uri string, kv ...typing.KV[string, string]) (*NativeDoResponse, error)
 }
 
 func New(source Source, ak string) ISDK {
@@ -73,14 +74,6 @@ func New(source Source, ak string) ISDK {
 		// return newTencent(ak)
 	}
 	return nil
-}
-
-type KV func() (k, v string)
-
-func NewKV(k, v string) func() (string, string) {
-	return func() (string, string) {
-		return k, v
-	}
 }
 
 type IResponseDTO[T any] interface {
@@ -153,9 +146,7 @@ type (
 		IDs []string
 	}
 	GetReverseGeocodingParams struct {
-		Point             // 圆形区域检索中心点，必填 格式：lat,lng
-		Radius   int      // 圆形区域检索半径，单位米，默认1000
-		PoiTypes []string // 控制返回附近POI类型
+		Point // 圆形区域检索中心点
 	}
 	SearchRegionParams struct {
 		Keyword string // 检索关键字，必填
@@ -163,8 +154,8 @@ type (
 		Point          // 圆形区域检索中心点，必填 格式：lat,lng
 	}
 	GetTransitRouteParams struct {
-		Origin      Point // 出发点坐标，必填 格式：lat,lng
-		Destination Point // 目的地坐标，必填 格式：lat,lng
+		From Point // 出发点坐标
+		To   Point // 目的地坐标
 	}
 )
 

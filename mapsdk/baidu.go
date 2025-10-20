@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/monaco-io/lib/typing/xstr"
+	"github.com/monaco-io/lib/typing"
 	"github.com/monaco-io/lib/xhttp"
 )
 
@@ -31,10 +31,10 @@ type NativeDoResponse struct {
 	Body json.RawMessage
 }
 
-func (b *baidu) NativeDo(uri string, params ...KV) (*NativeDoResponse, error) {
+func (b *baidu) NativeDo(uri string, params ...typing.KV[string, string]) (*NativeDoResponse, error) {
 	values := url.Values{}
 	for _, opt := range params {
-		k, v := opt()
+		k, v := opt.Get()
 		values.Set(k, v)
 	}
 	values.Set("ak", b.ak)
@@ -51,12 +51,12 @@ func (b *baidu) NativeDo(uri string, params ...KV) (*NativeDoResponse, error) {
 }
 
 // https://lbs.baidu.com/faq/api?title=webapi/guide/webservice-placeapiV3/interfaceDocumentV3
-func (b *baidu) SearchRegion(params SearchRegionParams, opts ...KV) (*Response[SearchPlaceData], error) {
+func (b *baidu) SearchRegion(params SearchRegionParams, opts ...typing.KV[string, string]) (*Response[SearchPlaceData], error) {
 	if params.Region != "" {
-		opts = append(opts, NewKV("query", params.Keyword))
-		opts = append(opts, NewKV("region", params.Region))
+		opts = append(opts, typing.NewKV("query", params.Keyword))
+		opts = append(opts, typing.NewKV("region", params.Region))
 		if params.Lat != 0 && params.Lng != 0 {
-			opts = append(opts, NewKV("center", params.GetPointString()))
+			opts = append(opts, typing.NewKV("center", params.GetPointString()))
 		}
 		body, err := b.NativeDo("/place/v3/region", opts...)
 		if err != nil {
@@ -64,10 +64,10 @@ func (b *baidu) SearchRegion(params SearchRegionParams, opts ...KV) (*Response[S
 		}
 		return unmarshal[*baiduSearchResponse3](body)
 	} else { // 无区域时，使用附近检索
-		opts = append(opts, NewKV("query", params.Keyword))
-		// opts = append(opts, NewKV("region", params.Region))
+		opts = append(opts, typing.NewKV("query", params.Keyword))
+		// opts = append(opts, typing.NewKV("region", params.Region))
 		if params.Lat != 0 && params.Lng != 0 {
-			opts = append(opts, NewKV("location", params.GetPointString()))
+			opts = append(opts, typing.NewKV("location", params.GetPointString()))
 		}
 		//query=银行&location=39.915,116.404&radius=2000&output=json&ak=您的密钥
 
@@ -79,8 +79,8 @@ func (b *baidu) SearchRegion(params SearchRegionParams, opts ...KV) (*Response[S
 	}
 }
 
-func (b *baidu) GetPlaceDetail(params GetPlaceDetailParams, opts ...KV) (*Response[[]PlaceDetailData], error) {
-	opts = append(opts, NewKV("uids", strings.Join(params.IDs, ",")))
+func (b *baidu) GetPlaceDetail(params GetPlaceDetailParams, opts ...typing.KV[string, string]) (*Response[[]PlaceDetailData], error) {
+	opts = append(opts, typing.NewKV("uids", strings.Join(params.IDs, ",")))
 	body, err := b.NativeDo("/place/v2/detail", opts...)
 	if err != nil {
 		return nil, err
@@ -93,12 +93,11 @@ func (b *baidu) GetPlaceDetail(params GetPlaceDetailParams, opts ...KV) (*Respon
 // 可以选择poi类型召回不同类型的poi，例如poi_types=酒店，如想召回多个POI类型数据，可以‘|’分割
 // 例如poi_types=酒店|房地产 不添加该参数则默认召回全部POI分类数据。
 // poi分类 https://lbsyun.baidu.com/index.php?title=open/poitags
-func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV) (*Response[ReverseGeocodingData], error) {
-	opts = append(opts, NewKV("location", params.GetPointString()))
-	if len(params.PoiTypes) > 0 {
-		opts = append(opts, NewKV("poi_types", strings.Join(params.PoiTypes, "|")))
+func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...typing.KV[string, string]) (*Response[ReverseGeocodingData], error) {
+	base := []typing.KV[string, string]{
+		typing.NewKV("location", params.GetPointString()),
 	}
-	opts = append(opts, NewKV("radius", xstr.DefaultIfBlank(fmt.Sprintf("%d", params.Radius), "1000"))) // 确保开启poi扩展
+	opts = append(base, opts...)
 	body, err := b.NativeDo("/reverse_geocoding/v3", opts...)
 	if err != nil {
 		return nil, err
@@ -106,10 +105,14 @@ func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV
 	return unmarshal[*baiduReverseGeocodingResponse3](body)
 }
 
-func (b *baidu) GetTransitRoute(params GetTransitRouteParams, opts ...KV) (*Response[TransitRouteData], error) {
-	opts = append(opts, NewKV("origin", params.Origin.GetPointString()))
-	opts = append(opts, NewKV("destination", params.Destination.GetPointString()))
-	opts = append(opts, NewKV("steps_info", "1"))
+func (b *baidu) GetTransitRoute(params GetTransitRouteParams, opts ...typing.KV[string, string]) (*Response[TransitRouteData], error) {
+	base := []typing.KV[string, string]{
+		typing.NewKV("origin", params.From.GetPointString()),
+		typing.NewKV("destination", params.To.GetPointString()),
+		typing.NewKV("steps_info", "1"),
+	}
+	opts = append(
+		base, opts...)
 	body, err := b.NativeDo("/direction/v2/transit", opts...)
 	if err != nil {
 		return nil, err
