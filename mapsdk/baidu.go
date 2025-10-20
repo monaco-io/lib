@@ -56,7 +56,7 @@ func (b *baidu) SearchRegion(params SearchRegionParams, opts ...KV) (*Response[S
 		opts = append(opts, NewKV("query", params.Keyword))
 		opts = append(opts, NewKV("region", params.Region))
 		if params.Lat != 0 && params.Lng != 0 {
-			opts = append(opts, NewKV("center", fmt.Sprintf("%f,%f", params.Lat, params.Lng)))
+			opts = append(opts, NewKV("center", params.GetPointString()))
 		}
 		body, err := b.NativeDo("/place/v3/region", opts...)
 		if err != nil {
@@ -67,7 +67,7 @@ func (b *baidu) SearchRegion(params SearchRegionParams, opts ...KV) (*Response[S
 		opts = append(opts, NewKV("query", params.Keyword))
 		// opts = append(opts, NewKV("region", params.Region))
 		if params.Lat != 0 && params.Lng != 0 {
-			opts = append(opts, NewKV("location", fmt.Sprintf("%f,%f", params.Lat, params.Lng)))
+			opts = append(opts, NewKV("location", params.GetPointString()))
 		}
 		//query=银行&location=39.915,116.404&radius=2000&output=json&ak=您的密钥
 
@@ -94,7 +94,7 @@ func (b *baidu) GetPlaceDetail(params GetPlaceDetailParams, opts ...KV) (*Respon
 // 例如poi_types=酒店|房地产 不添加该参数则默认召回全部POI分类数据。
 // poi分类 https://lbsyun.baidu.com/index.php?title=open/poitags
 func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV) (*Response[ReverseGeocodingData], error) {
-	opts = append(opts, NewKV("location", fmt.Sprintf("%f,%f", params.Lat, params.Lng)))
+	opts = append(opts, NewKV("location", params.GetPointString()))
 	if len(params.PoiTypes) > 0 {
 		opts = append(opts, NewKV("poi_types", strings.Join(params.PoiTypes, "|")))
 	}
@@ -107,8 +107,8 @@ func (b *baidu) GetReverseGeocoding(params GetReverseGeocodingParams, opts ...KV
 }
 
 func (b *baidu) GetTransitRoute(params GetTransitRouteParams, opts ...KV) (*Response[TransitRouteData], error) {
-	opts = append(opts, NewKV("origin", fmt.Sprintf("%f,%f", params.Origin.Lat, params.Origin.Lng)))
-	opts = append(opts, NewKV("destination", fmt.Sprintf("%f,%f", params.Destination.Lat, params.Destination.Lng)))
+	opts = append(opts, NewKV("origin", params.Origin.GetPointString()))
+	opts = append(opts, NewKV("destination", params.Destination.GetPointString()))
 	opts = append(opts, NewKV("steps_info", "1"))
 	body, err := b.NativeDo("/direction/v2/transit", opts...)
 	if err != nil {

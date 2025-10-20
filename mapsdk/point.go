@@ -1,6 +1,7 @@
 package mapsdk
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/monaco-io/lib/mapsdk/coordinate"
@@ -15,6 +16,13 @@ type TPoint struct {
 type Point struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
+}
+
+func (p *Point) GetPointString() string {
+	if p != nil {
+		return fmt.Sprintf("%f,%f", p.Lat, p.Lng)
+	}
+	return ""
 }
 
 func (p *Point) GetGeoHash(precision uint) string {
