@@ -3,6 +3,7 @@ module github.com/monaco-io/lib
 go 1.25.0
 
 require (
+	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.12.1
 	github.com/samber/lo v1.51.0
