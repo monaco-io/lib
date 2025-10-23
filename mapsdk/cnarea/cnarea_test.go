@@ -11,7 +11,8 @@ func Test_GetProvinceList(t *testing.T) {
 }
 
 func Test_GetCityList(t *testing.T) {
-	t.Log(len(GetCityList()), xjson.MarshalIndentStringX(GetCityList()))
+	citys := GetCityList()
+	t.Log(len(citys), xjson.MarshalIndentStringX(citys))
 }
 
 func Test_GetDistrictList(t *testing.T) {
