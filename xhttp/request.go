@@ -48,8 +48,8 @@ func (f *InterceptorFunc) After(resp *http.Response, req *http.Request) error {
 var interceptors []Interceptor
 
 // RegisterInterceptor 注册拦截器
-func RegisterInterceptor(i Interceptor) {
-	interceptors = append(interceptors, i)
+func RegisterInterceptors(i ...Interceptor) {
+	interceptors = append(interceptors, i...)
 }
 
 const (
