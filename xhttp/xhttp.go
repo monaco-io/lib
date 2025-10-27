@@ -37,7 +37,7 @@ func Do(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Respons
 	if err != nil {
 		return nil, err
 	}
-	response, err := xrequest.Do(xrequest.Request)
+	response, err := xrequest.doWithInterceptors(xrequest.Request)
 	if err != nil {
 		return nil, err
 	}

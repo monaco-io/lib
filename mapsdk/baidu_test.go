@@ -28,7 +28,7 @@ func Test_baidu_SearchRegion(t *testing.T) {
 			fields: fields{},
 			args: args{
 				params: SearchRegionParams{
-					Keyword: "洗浴",
+					Keyword: "地铁站",
 					// Region:  "上海",
 					Point: Point{Lat: 31.2304, Lng: 121.4737}, // 上海市中心点
 				},
@@ -44,7 +44,7 @@ func Test_baidu_SearchRegion(t *testing.T) {
 				t.Errorf("baidu.SearchRegion() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			t.Logf("baidu.SearchRegion() = %v", got.ToJSON())
+			t.Log(got.ToJSON())
 		})
 	}
 }

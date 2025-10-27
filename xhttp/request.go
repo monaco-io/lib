@@ -16,6 +16,42 @@ import (
 	"github.com/monaco-io/lib/typing/xyaml"
 )
 
+// Interceptor 定义拦截器接口
+type Interceptor interface {
+	// 在请求发送前处理
+	Before(req *http.Request) error
+	// 在响应返回后处理
+	After(resp *http.Response, req *http.Request) error
+}
+
+// InterceptorFunc 适配函数式拦截器
+type InterceptorFunc struct {
+	BeforeFunc func(req *http.Request) error
+	AfterFunc  func(resp *http.Response, req *http.Request) error
+}
+
+var _ Interceptor = (*InterceptorFunc)(nil)
+
+func (f *InterceptorFunc) Before(req *http.Request) error {
+	if f != nil && f.BeforeFunc != nil {
+		return f.BeforeFunc(req)
+	}
+	return nil
+}
+func (f *InterceptorFunc) After(resp *http.Response, req *http.Request) error {
+	if f != nil && f.AfterFunc != nil {
+		return f.AfterFunc(resp, req)
+	}
+	return nil
+}
+
+var interceptors []Interceptor
+
+// RegisterInterceptor 注册拦截器
+func RegisterInterceptor(i Interceptor) {
+	interceptors = append(interceptors, i)
+}
+
 const (
 	ContentType           = "Content-Type"
 	ContentTypeHTML       = "text/html"
@@ -223,5 +259,20 @@ func build(ctx context.Context, url string, opts ...xopt.Option[Request]) (*Requ
 		decoder: defaultDecoder,
 	}
 	xopt.Apply(opts, xrequest)
+	// 执行所有拦截器的Before方法
+	for _, i := range interceptors {
+		if err := i.Before(xrequest.Request); err != nil {
+			return nil, err
+		}
+	}
 	return xrequest, nil
+}
+
+// doWithInterceptors 执行请求并调用拦截器链
+func (r *Request) doWithInterceptors(req *http.Request) (*http.Response, error) {
+	resp, err := r.Do(req)
+	for _, i := range interceptors {
+		_ = i.After(resp, r.Request)
+	}
+	return resp, err
 }
