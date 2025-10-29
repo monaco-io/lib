@@ -55,6 +55,18 @@ func (b *baidu) SearchRegion(params SearchRegionParams, opts ...typing.KV[string
 	base := []typing.KV[string, string]{
 		typing.NewKV("query", params.Keyword),
 	}
+	if params.Radius != 0 {
+		base = append(base, typing.NewKV("radius", fmt.Sprintf("%d", params.Radius)))
+		if params.Lat != 0 && params.Lng != 0 {
+			base = append(base, typing.NewKV("location", params.GetPointString()))
+		}
+		opts = append(base, opts...)
+		body, err := b.NativeDo("/place/v3/around", opts...)
+		if err != nil {
+			return nil, err
+		}
+		return unmarshal[*baiduSearchResponse3](body)
+	}
 	if params.Region != "" {
 		base = append(base, typing.NewKV("region", params.Region))
 		if params.Lat != 0 && params.Lng != 0 {

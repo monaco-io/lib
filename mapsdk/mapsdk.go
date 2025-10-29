@@ -152,6 +152,7 @@ type (
 		Keyword string // 检索关键字，必填
 		Region  string // 检索区域，必填
 		Point          // 圆形区域检索中心点，必填 格式：lat,lng
+		Radius  uint64 // 圆形区域检索半径，单位为米。（增加区域内数据召回权重，如需严格限制召回数据在区域内，请搭配使用radius_limit参数），当半径过大，超过中心点所在城市边界时，会变为城市范围检索，检索范围为中心点所在城市
 	}
 	GetTransitRouteParams struct {
 		From Point // 出发点坐标
